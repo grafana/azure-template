@@ -4,7 +4,7 @@
     "parameters": {
         "baseUrl": {
             "type": "string",
-            "defaultValue": "https://raw.githubusercontent.com/jtlisi/azure-marketplace/master/src",
+            "defaultValue": "https://raw.githubusercontent.com/jtlisi/azure-marketplace/master/",
             "metadata": {
                 "artifactsBaseUrl": "Base URL of the Grafana template gallery package"
             }
@@ -50,7 +50,7 @@
     },
     "variables": {
         "installScripts": [
-            "[concat(parameters('baseUrl'), 'scripts/grafana-install.sh')]"
+            "[concat(parameters('baseUrl'), 'scripts/install-grafana.sh')]"
         ],
         "nicName": "myVMNic",
         "addressPrefix": "10.0.0.0/16",
