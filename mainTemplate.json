@@ -1,0 +1,51 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "0.0.0.1",
+    "parameters": {
+        "baseUrl": {
+            "type": "string",
+            "defaultValue": "https://raw.githubusercontent.com/jtlisi/azure-marketplace/master/src",
+            "metadata": {
+              "artifactsBaseUrl": "Base URL of the Grafana template gallery package"
+            }
+          }
+    },
+    "variables": {
+        "installScripts": [
+            "[concat(parameters('baseUrl'), 'scripts/grafana-install.sh')]"            
+        ]
+    },
+    "resources": [{
+        "name": "virtual-machine",
+        "type": "Microsoft.Compute/virtualMachines",
+        "apiVersion": "2017-03-30",
+        "location": "[resourceGroup().location]",
+        "tags": {},
+        "properties": {
+            "storageProfile": {
+                "imageReference": {
+                    "publisher": "Canonical",
+                    "offer": "UbuntuServer",
+                    "sku": "16.04-LTS",
+                    "version": "latest"
+                }
+            }
+        },
+        "resources": [{
+            "type": "extensions",
+            "name": "installgrafana",
+            "apiVersion": "2017-03-30",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "publisher": "GrafanaLabs",
+                "type": "CustomScript",
+                "typeHandlerVersion": "2.0",
+                "settings": {
+                    "fileUris": "[variables('installScripts')]",
+                    "commandToExecute": "bash install-grafana.sh"
+                }
+            }
+        }]
+    }],
+    "outputs": {}
+}
