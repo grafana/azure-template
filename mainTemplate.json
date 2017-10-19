@@ -6,46 +6,182 @@
             "type": "string",
             "defaultValue": "https://raw.githubusercontent.com/jtlisi/azure-marketplace/master/src",
             "metadata": {
-              "artifactsBaseUrl": "Base URL of the Grafana template gallery package"
+                "artifactsBaseUrl": "Base URL of the Grafana template gallery package"
             }
-          }
+        },
+        "authenticationType": {
+            "type": "string",
+            "defaultValue": "password",
+            "allowedValues": [
+                "password",
+                "sshPublicKey"
+            ],
+            "metadata": {
+                "description": "Type of authentication to use on the Virtual Machine."
+            }
+        },
+        "adminUsername": {
+            "type": "string",
+            "metadata": {
+                "description": "These credentials can be used to remotely access the cluster."
+            }
+        },
+        "adminPassword": {
+            "type": "securestring",
+            "defaultValue": "",
+            "metadata": {
+                "description": "These credentials can be used to remotely access the cluster."
+            }
+        },
+        "sshPublicKey": {
+            "type": "securestring",
+            "defaultValue": "",
+            "metadata": {
+                "description": "ssh key for the Virtual Machine."
+            }
+        },
+        "vmName": {
+            "type": "string",
+            "defaultValue": "linux-vm",
+            "metadata": {
+                "description": "Name for the Virtual Machine."
+            }
+        }
     },
     "variables": {
         "installScripts": [
-            "[concat(parameters('baseUrl'), 'scripts/grafana-install.sh')]"            
-        ]
+            "[concat(parameters('baseUrl'), 'scripts/grafana-install.sh')]"
+        ],
+        "nicName": "myVMNic",
+        "addressPrefix": "10.0.0.0/16",
+        "subnetName": "Subnet-1",
+        "subnetPrefix": "10.0.0.0/24",
+        "storageAccountType": "Standard_LRS",
+        "publicIPAddressName": "myPublicIP",
+        "publicIPAddressType": "Dynamic",
+        "vmStorageAccountContainerName": "vhds",
+        "vmSize": "Standard_A0",
+        "virtualNetworkName": "MyVNET",
+        "vnetID": "[resourceId('Microsoft.Network/virtualNetworks',variables('virtualNetworkName'))]",
+        "subnetRef": "[concat(variables('vnetID'),'/subnets/',variables('subnetName'))]",
+        "passwordAuth": {
+            "computerName": "[parameters('vmName')]",
+            "adminUsername": "[parameters('adminUsername')]",
+            "adminPassword": "[parameters('adminPassword')]"
+        },
+        "sshAuth": {
+            "computerName": "[parameters('vmName')]",
+            "adminUsername": "[parameters('adminUsername')]",
+            "linuxConfiguration": {
+                "disablePasswordAuthentication": true,
+                "ssh": {
+                    "publicKeys": [{
+                        "path": "[concat('/home/', parameters('adminUsername'), '/.ssh/authorized_keys')]",
+                        "keyData": "[parameters('sshPublicKey')]"
+                    }]
+                }
+            }
+        }
     },
     "resources": [{
-        "name": "virtual-machine",
-        "type": "Microsoft.Compute/virtualMachines",
-        "apiVersion": "2017-03-30",
-        "location": "[resourceGroup().location]",
-        "tags": {},
-        "properties": {
-            "storageProfile": {
-                "imageReference": {
-                    "publisher": "Canonical",
-                    "offer": "UbuntuServer",
-                    "sku": "16.04-LTS",
-                    "version": "latest"
-                }
-            }
-        },
-        "resources": [{
-            "type": "extensions",
-            "name": "installgrafana",
-            "apiVersion": "2017-03-30",
+            "apiVersion": "2015-06-15",
+            "type": "Microsoft.Network/publicIPAddresses",
+            "name": "[variables('publicIPAddressName')]",
             "location": "[resourceGroup().location]",
             "properties": {
-                "publisher": "GrafanaLabs",
-                "type": "CustomScript",
-                "typeHandlerVersion": "2.0",
-                "settings": {
-                    "fileUris": "[variables('installScripts')]",
-                    "commandToExecute": "bash install-grafana.sh"
-                }
+                "publicIPAllocationMethod": "[variables('publicIPAddressType')]"
             }
-        }]
-    }],
+        },
+        {
+            "apiVersion": "2015-05-01-preview",
+            "type": "Microsoft.Network/virtualNetworks",
+            "name": "[variables('virtualNetworkName')]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "addressSpace": {
+                    "addressPrefixes": [
+                        "[variables('addressPrefix')]"
+                    ]
+                },
+                "subnets": [{
+                    "name": "[variables('subnetName')]",
+                    "properties": {
+                        "addressPrefix": "[variables('subnetPrefix')]"
+                    }
+                }]
+            }
+        },
+        {
+            "apiVersion": "2015-05-01-preview",
+            "type": "Microsoft.Network/networkInterfaces",
+            "name": "[variables('nicName')]",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[concat('Microsoft.Network/publicIPAddresses/', variables('publicIPAddressName'))]",
+                "[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]"
+            ],
+            "properties": {
+                "ipConfigurations": [{
+                    "name": "ipconfig1",
+                    "properties": {
+                        "privateIPAllocationMethod": "Dynamic",
+                        "publicIPAddress": {
+                            "id": "[resourceId('Microsoft.Network/publicIPAddresses',variables('publicIPAddressName'))]"
+                        },
+                        "subnet": {
+                            "id": "[variables('subnetRef')]"
+                        }
+                    }
+                }]
+            }
+        },
+        {
+            "name": "[parameters('vmName')]",
+            "type": "Microsoft.Compute/virtualMachines",
+            "apiVersion": "2017-03-30",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[concat('Microsoft.Network/networkInterfaces/', variables('nicName'))]"
+            ],
+            "properties": {
+                "storageProfile": {
+                    "imageReference": {
+                        "publisher": "Canonical",
+                        "offer": "UbuntuServer",
+                        "sku": "16.04-LTS",
+                        "version": "latest"
+                    }
+                },
+                "hardwareProfile": {
+                    "vmSize": "Standard_A0"
+                },
+                "osProfile": "[if(equals(parameters('authenticationType'), 'password'), variables('passwordAuth'), variables('sshAuth'))]",
+                "networkProfile": {
+                    "networkInterfaces": [{
+                        "id": "[resourceId('Microsoft.Network/networkInterfaces',variables('nicName'))]"
+                    }]
+                }
+            },
+            "resources": [{
+                "type": "extensions",
+                "name": "installgrafana",
+                "apiVersion": "2017-03-30",
+                "location": "[resourceGroup().location]",
+                "dependsOn": [
+                    "[concat('Microsoft.Compute/virtualMachines/', parameters('vmName'))]"
+                ],
+                "properties": {
+                    "publisher": "Microsoft.Azure.Extensions",
+                    "type": "CustomScript",
+                    "typeHandlerVersion": "2.0",
+                    "autoUpgradeMinorVersion": true,
+                    "settings": {
+                        "fileUris": "[variables('installScripts')]",
+                        "commandToExecute": "bash install-grafana.sh"
+                    }
+                }
+            }]
+        }
+    ],
     "outputs": {}
 }
