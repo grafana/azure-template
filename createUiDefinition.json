@@ -1,0 +1,26 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/0.1.2-preview/CreateUIDefinition.MultiVm.json#",
+    "handler": "Microsoft.Compute.MultiVm",
+    "version": "0.1.2-preview",
+    "parameters": {
+        "basics": [
+            {
+                "name": "storageAccounts",
+                "type": "Microsoft.Common.TextBox",
+                "label": "Storage account name prefix",
+                "defaultValue": "storage",
+                "toolTip": "Provide a value that is used for the prefix of your storage account. Limit to 11 characters.",
+                "constraints": {
+                    "required": true,
+                    "regex": "^[a-z0-9A-Z]{1,11}$",
+                    "validationMessage": "Only alphanumeric characters are allowed, and the value must be 1-11 characters long."
+                },
+                "visible": true
+            }
+        ],
+        "steps": [],
+        "outputs": {
+            "storageAccountNamePrefix": "[basics('storageAccounts')]"
+        }
+    }
+  }
