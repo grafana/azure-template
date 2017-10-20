@@ -150,7 +150,7 @@
         }
     },
     "variables": {
-        "baseUrl": "https://raw.githubusercontent.com/jtlisi/azure-marketplace/master/",
+        "baseUrl": "https://raw.githubusercontent.com/grafana/azure-marketplace/master/",
         "installScripts": [
             "[concat(variables('baseUrl'), 'scripts/install-grafana.sh')]"
         ],
