@@ -33,6 +33,13 @@
                 "description": "ssh key for the Virtual Machine."
             }
         },
+        "grafanaAdminPassword": {
+            "type": "securestring",
+            "metadata": {
+                "description": "These credentials give access to the grafana admin account"
+            },
+            "defaultValue": "admin"
+        },
         "namespace": {
             "type": "string",
             "defaultValue": "grafana",
@@ -47,20 +54,6 @@
                 "http",
                 "https"
             ]
-        },
-        "certFile": {
-            "type": "string",
-            "defaultValue": "",
-            "metadata": {
-                "description": "A Base-64 encoded form of the certificate (.crt) to secure HTTPS communications between the browser and Grafana."
-            }
-        },
-        "keyFile": {
-            "type": "securestring",
-            "defaultValue": "",
-            "metadata": {
-                "description": "A Base-64 encoded form of the private key (.key) to secure HTTPS communications between the browser and Grafana."
-            }
         },
         "publicIPAddressName": {
             "type": "string",
@@ -136,7 +129,7 @@
         },
         "subnetName": {
             "type": "string",
-            "defaultValue": "shsubnet",
+            "defaultValue": "grafanaSubnet",
             "metadata": {
                 "description": "Subnet for grafana"
             }
@@ -161,14 +154,10 @@
         "installScripts": [
             "[concat(variables('baseUrl'), 'scripts/install-grafana.sh')]"
         ],
+        "installOpts": "[concat('-A ', parameters('grafanaAdminPassword'))]",
         "nicName": "[concat(parameters('namespace'), '-nic')]",
         "publicIPAddressName": "[parameters('publicIpAddressName')]",
         "publicIPAddressType": "Dynamic",
-        "storageSettings":{
-            "storageAccountName": "[parameters('storageAccountName')]",
-            "storageAccountType": "[parameters('storageAccountType')]"
-        },
-        "storageTemplateUrl": "[concat(variables('baseUrl'), 'nested/', 'storage-', parameters('storageAccountNewOrExisting'), '.json')]",
         "vmStorageAccountContainerName": "vhds",
         "virtualNetworkTemplateUrl": "[concat(variables('baseUrl'), 'nested/', 'vnet-', parameters('virtualNetworkNewOrExisting'), '.json')]",
         "networkSettings": {
@@ -176,9 +165,9 @@
             "virtualNetworkExistingRGName": "[parameters('virtualNetworkExistingRGName')]",
             "virtualNetworkAddressPrefix": "[parameters('virtualNetworkAddressPrefix')]",
             "subnet": {
-                    "name": "[parameters('subnetName')]",
-                    "prefix": "[parameters('subnetPrefix')]",
-                    "vnet": "[parameters('virtualNetworkName')]"
+                "name": "[parameters('subnetName')]",
+                "prefix": "[parameters('subnetPrefix')]",
+                "vnet": "[parameters('virtualNetworkName')]"
             }
         },
         "vnetId-new": "[concat(resourceGroup().id, '/providers/Microsoft.Network/virtualNetworks/',parameters('virtualNetworkName'))]",
@@ -191,7 +180,7 @@
             "adminPassword": "[parameters('sshPassword')]"
         },
         "sshAuth": {
-            "computerName":  "[concat(parameters('namespace'), '-vm')]",
+            "computerName": "[concat(parameters('namespace'), '-vm')]",
             "adminUsername": "[parameters('sshUsername')]",
             "linuxConfiguration": {
                 "disablePasswordAuthentication": true,
@@ -227,24 +216,16 @@
             }
         },
         {
-            "name": "storage",
-            "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2015-01-01",
-            "properties": {
-                "mode": "Incremental",
-                "templateLink": {
-                    "uri": "[variables('storageTemplateUrl')]",
-                    "contentVersion": "0.0.0.1"
-                },
-                "parameters": {
-                    "location": {
-                        "value": "[resourceGroup().location]"
-                    },
-                    "storageSettings": {
-                        "value": "[variables('storageSettings')]"
-                    }
-                }
-            }
+            "condition": "[equals(parameters('storageAccountNewOrExisting'), 'new')]",
+            "type": "Microsoft.Storage/storageAccounts",
+            "name": "[parameters('storageAccountName')]",
+            "apiVersion": "2016-01-01",
+            "location": "[resourceGroup().location]",
+            "sku": {
+                "name": "[parameters('storageAccountType')]"
+            },
+            "kind": "Storage",
+            "properties": {}
         },
         {
             "apiVersion": "2015-06-15",
@@ -323,7 +304,7 @@
             "location": "[resourceGroup().location]",
             "dependsOn": [
                 "[concat('Microsoft.Network/networkInterfaces/', variables('nicName'))]",
-                "[concat('Microsoft.Resources/deployments/', 'storage')]"
+                "[concat('Microsoft.Storage/storageAccounts/', parameters('storageAccountName'))]"
             ],
             "properties": {
                 "storageProfile": {
@@ -353,7 +334,7 @@
             },
             "resources": [{
                 "type": "extensions",
-                "name": "installgrafana",
+                "name": "installGrafana",
                 "apiVersion": "2017-03-30",
                 "location": "[resourceGroup().location]",
                 "dependsOn": [
@@ -365,11 +346,14 @@
                     "typeHandlerVersion": "2.0",
                     "autoUpgradeMinorVersion": true,
                     "settings": {
-                        "fileUris": "[variables('installScripts')]",
-                        "commandToExecute": "bash install-grafana.sh"
+                        "fileUris": "[variables('installScripts')]"
+                    },
+                    "protectedSettings": {
+                        "commandToExecute": "[concat('bash install-grafana.sh ', variables('installOpts'))]"
                     }
                 }
-            }]
+            }
+        ]
         }
     ],
     "outputs": {
