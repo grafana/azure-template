@@ -81,6 +81,20 @@
             "type": "string",
             "defaultValue": "Standard_LRS"
         },
+        "storageAccountNewOrExisting": {
+            "type": "string",
+            "allowedValues": [
+                "new",
+                "existing"
+            ],
+            "metadata": {
+                "description": "Name of resource group of existing Storage Group (if applicable)"
+            },
+            "defaultValue": "new"
+        },
+        "storageAccountExistingRGName": {
+            "type": "string"
+        },
         "vmSize": {
             "type": "string",
             "defaultValue": "Standard_A2",
@@ -149,6 +163,11 @@
         "nicName": "[concat(parameters('namespace'), '-nic')]",
         "publicIPAddressName": "[parameters('publicIpAddressName')]",
         "publicIPAddressType": "Dynamic",
+        "storageAccountSettings":{
+            "storageAccountName": "[parameters('storageAccountName']",
+            "storageAccountType": "[parameters('storageAccountType']"
+        },
+        "storageTemplateUrl": "[concat(variables('baseUrl'), 'nested/', 'storage-', parameters('storageAccountNewOrExisting'), '.json')]",
         "vmStorageAccountContainerName": "vhds",
         "virtualNetworkTemplateUrl": "[concat(variables('baseUrl'), 'nested/', 'vnet-', parameters('virtualNetworkNewOrExisting'), '.json')]",
         "networkSettings": {
@@ -161,6 +180,10 @@
                     "vnet": "[parameters('virtualNetworkName')]"
             }
         },
+        "vnetId-new": "[concat(resourceGroup().id, '/providers/Microsoft.Network/virtualNetworks/',parameters('virtualNetworkName'))]",
+        "vnetId-existing": "[resourceId(parameters('virtualNetworkExistingRGName'),'Microsoft.Network/virtualNetworks/',parameters('virtualNetworkName'))]",
+        "vnetId": "[variables(concat('vnetId-', parameters('virtualNetworkNewOrExisting')))]",
+        "subnetRef": "[concat(variables('vnetId'),'/subnets/',parameters('subnetName'))]",
         "passwordAuth": {
             "computerName": "[concat(parameters('namespace'), '-vm')]",
             "adminUsername": "[parameters('sshUsername')]",
@@ -179,7 +202,7 @@
                 }
             }
         },
-        "OSDiskName": "grafana_disk",
+        "OSDiskName": "concat(parameters('namespace'), '-disk')",
         "securityGroupName": "[concat(parameters('namespace'), '-nsg')]"
     },
     "resources": [{
@@ -203,15 +226,24 @@
             }
         },
         {
-            "type": "Microsoft.Storage/storageAccounts",
-            "name": "[parameters('storageAccountName')]",
-            "apiVersion": "2016-01-01",
-            "location": "[resourceGroup().location]",
-            "sku": {
-                "name": "[parameters('storageAccountType')]"
-            },
-            "kind": "Storage",
-            "properties": {}
+            "name": "storage",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2015-01-01",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('storageTemplateUrl')]",
+                    "contentVersion": "0.0.0.1"
+                },
+                "parameters": {
+                    "location": {
+                        "value": "[resourceGroup().location]"
+                    },
+                    "storageSettings": {
+                        "value": "[variables('storageSettings')]"
+                    }
+                }
+            }
         },
         {
             "apiVersion": "2015-06-15",
@@ -272,7 +304,7 @@
                 "ipConfigurations": [{
                     "name": "ipconfig1",
                     "properties": {
-                        "privateIPAllocationMethod": "Static",
+                        "privateIPAllocationMethod": "Dynamic",
                         "publicIPAddress": {
                             "id": "[resourceId('Microsoft.Network/publicIPAddresses',parameters('publicIPAddressName'))]"
                         },
@@ -289,7 +321,8 @@
             "apiVersion": "2017-03-30",
             "location": "[resourceGroup().location]",
             "dependsOn": [
-                "[concat('Microsoft.Network/networkInterfaces/', variables('nicName'))]"
+                "[concat('Microsoft.Network/networkInterfaces/', variables('nicName'))]",
+                "[concat('Microsoft.Resources/deployments/', 'storage')]"
             ],
             "properties": {
                 "storageProfile": {

@@ -129,7 +129,9 @@
                 "constraints": {
                   "allowedTypes": [
                     "Standard_LRS",
-                    "Standard_GRS"
+                    "Standard_GRS",
+                    "Standard_ZRS",
+                    "Premium_LRS"
                   ]
                 },
                 "options": {
@@ -214,6 +216,8 @@
             "vmSize": "[steps(nodeConfiguration).vmSize]",
             "storageAccountName": "[steps('nodeConfiguration').storageAccount.name]",
             "storageAccountType": "[steps('nodeConfiguration').storageAccount.type]",
+            "storageAccountNewOrExisting": "[steps('nodeConfiguration').storageAccount.newOrExisting]",
+            "storageAccountExistingRGName": "[steps('nodeConfiguration').storageAccount.resourceGroup]",
             "domainNamePrefix": "[steps('networkConfiguration').grafanaDomainName.domainNameLabel]",
             "publicIPAddressName":"[steps('networkConfiguration').grafanaDomainName.name]",
             "virtualNetworkName": "[steps('networkConfiguration').grafanaVnetSpec.name]",

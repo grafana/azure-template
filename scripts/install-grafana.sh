@@ -19,11 +19,6 @@ install_grafana()
     sudo dpkg -i grafana_4.5.2_amd64.deb
     systemctl daemon-reload
 }
- 
-install_plugins()
-{
-    ## Placeholder for azure plugin install
-}
 
 start_grafana()
 {

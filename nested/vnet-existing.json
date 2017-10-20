@@ -16,7 +16,7 @@
         "virtualNetworkName": "[parameters('networkSettings').virtualNetworkName]",
         "virtualNetworkExistingRGName": "[parameters('networkSettings').virtualNetworkExistingRGName]",
         "virtualNetworkId": "[resourceId(variables('virtualNetworkExistingRGName'),'Microsoft.Network/virtualNetworks',variables('virtualNetworkName'))]",
-        "subnet1Name": "[parameters('networkSettings').subnet.name]",
+        "subnetName": "[parameters('networkSettings').subnet.name]",
         "subnetRef": "[concat(variables('virtualNetworkId'),'/subnets/',variables('subnetName'))]"
     },
     "resources": [],
