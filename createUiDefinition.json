@@ -210,7 +210,7 @@
                             "subnet1": {
                                 "label": "grafana subnet",
                                 "defaultValue": {
-                                    "name": "shsubnet",
+                                    "name": "grafanaSubnet",
                                     "addressPrefixSize": "/24"
                                 },
                                 "constraints": {
