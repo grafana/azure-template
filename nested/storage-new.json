@@ -14,7 +14,8 @@
     },
     "variables": {
         "storageAccountName": "[parameters('storageSettings').storageAccountName]",
-        "storageAccountType": "[parameters('storageSettings').storageAccountType]"
+        "storageAccountType": "[parameters('storageSettings').storageAccountType]",
+        "storageRef": ""
     },
     "resources": [{
         "type": "Microsoft.Storage/storageAccounts",

@@ -93,7 +93,8 @@
             "defaultValue": "new"
         },
         "storageAccountExistingRGName": {
-            "type": "string"
+            "type": "string",
+            "defaultValue": ""
         },
         "vmSize": {
             "type": "string",
@@ -163,7 +164,7 @@
         "nicName": "[concat(parameters('namespace'), '-nic')]",
         "publicIPAddressName": "[parameters('publicIpAddressName')]",
         "publicIPAddressType": "Dynamic",
-        "storageAccountSettings":{
+        "storageSettings":{
             "storageAccountName": "[parameters('storageAccountName')]",
             "storageAccountType": "[parameters('storageAccountType')]"
         },
@@ -240,7 +241,7 @@
                         "value": "[resourceGroup().location]"
                     },
                     "storageSettings": {
-                        "value": "[variables('storageAccountSettings')]"
+                        "value": "[variables('storageSettings')]"
                     }
                 }
             }
