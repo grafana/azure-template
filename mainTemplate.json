@@ -150,7 +150,6 @@
         "publicIPAddressName": "[parameters('publicIpAddressName')]",
         "publicIPAddressType": "Dynamic",
         "vmStorageAccountContainerName": "vhds",
-        "vnetID": "[resourceId('Microsoft.Network/virtualNetworks',parameters('virtualNetworkName'))]",
         "virtualNetworkTemplateUrl": "[concat(variables('baseUrl'), 'nested/', 'vnet-', parameters('virtualNetworkNewOrExisting'), '.json')]",
         "networkSettings": {
             "virtualNetworkName": "[parameters('virtualNetworkName')]",
@@ -162,7 +161,6 @@
                     "vnet": "[parameters('virtualNetworkName')]"
             }
         },
-        "subnetRef": "[concat(variables('vnetID'),'/subnets/',variables('subnetName'))]",
         "passwordAuth": {
             "computerName": "[concat(parameters('namespace'), '-vm')]",
             "adminUsername": "[parameters('sshUsername')]",
@@ -268,7 +266,7 @@
             "location": "[resourceGroup().location]",
             "dependsOn": [
                 "[concat('Microsoft.Network/publicIPAddresses/', parameters('publicIPAddressName'))]",
-                "[concat('Microsoft.Network/virtualNetworks/', parameters('virtualNetworkName'))]"
+                "[concat('Microsoft.Resources/deployments/', 'virtual-network')]"
             ],
             "properties": {
                 "ipConfigurations": [{

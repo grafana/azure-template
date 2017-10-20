@@ -23,6 +23,7 @@
         "subnetRef": "[concat(variables('virtualNetworkId'),'/subnets/',variables('subnetName'))]"
     },
     "resources": [{
+        "name": "[variables('virtualNetworkName')]",
         "apiVersion": "2015-06-15",
         "type": "Microsoft.Network/virtualNetworks",
         "location": "[parameters('location')]",
