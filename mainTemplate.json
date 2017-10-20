@@ -37,8 +37,7 @@
             "type": "securestring",
             "metadata": {
                 "description": "These credentials give access to the grafana admin account"
-            },
-            "defaultValue": "admin"
+            }
         },
         "namespace": {
             "type": "string",
@@ -68,7 +67,8 @@
             }
         },
         "storageAccountName": {
-            "type": "string"
+            "type": "string",
+            "maxLength": 24
         },
         "storageAccountType": {
             "type": "string",
@@ -233,7 +233,10 @@
             "name": "[parameters('publicIPAddressName')]",
             "location": "[resourceGroup().location]",
             "properties": {
-                "publicIPAllocationMethod": "[variables('publicIPAddressType')]"
+                "publicIPAllocationMethod": "[variables('publicIPAddressType')]",
+                "dnsSettings":{
+                    "domainNameLabel": "[parameters('domainNamePrefix')]"
+                }
             }
         },
         {

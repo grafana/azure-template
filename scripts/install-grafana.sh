@@ -18,11 +18,12 @@ help()
 ADMIN_PWD="admin"
 
 #Loop through options passed
-while getopts :n:v:A:R:K:S:Z:p:a:k:L:C:Xxyzldjh optname; do
+while getopts :A:h optname; do
   log "Option $optname set"
   case $optname in
     A)
       ADMIN_PWD="${OPTARG}"
+      ;;
     h) #show help
       help
       exit 2
