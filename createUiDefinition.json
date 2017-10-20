@@ -3,24 +3,226 @@
     "handler": "Microsoft.Compute.MultiVm",
     "version": "0.1.2-preview",
     "parameters": {
-        "basics": [
-            {
-                "name": "storageAccounts",
-                "type": "Microsoft.Common.TextBox",
-                "label": "Storage account name prefix",
-                "defaultValue": "storage",
-                "toolTip": "Provide a value that is used for the prefix of your storage account. Limit to 11 characters.",
+        "basics": [{
+                "name": "sshUsername",
+                "type": "Microsoft.Compute.UserNameTextBox",
+                "label": "User name",
+                "defaultValue": "",
+                "toolTip": "Specify a user for accessing the virtual machines within your cluster. Must be a valid Ubuntu username",
                 "constraints": {
                     "required": true,
-                    "regex": "^[a-z0-9A-Z]{1,11}$",
-                    "validationMessage": "Only alphanumeric characters are allowed, and the value must be 1-11 characters long."
+                    "regex": "^(?!(?:adm|admin|audio|backup|bin|cdrom|crontab|daemon|dialout|dip|disk|fax|floppy|fuse|games|gnats|irc|kmem|landscape|libuuid|list|lp|mail|man|messagebus|mlocate|netdev|news|nobody|nogroup|operator|plugdev|proxy|root|sasl|shadow|src|ssh|sshd|staff|sudo|sync|sys|syslog|tape|tty|users|utmp|uucp|video|voice|whoopsie|www\\-data)$)\\w+$",
+                    "validationMessage": "Username must not be a reserved Ubuntu username"
                 },
-                "visible": true
+                "osPlatform": "Linux"
+            },
+            {
+                "name": "password",
+                "type": "Microsoft.Compute.CredentialsCombo",
+                "label": {
+                    "authenticationType": "Authentication type",
+                    "password": "Password",
+                    "confirmPassword": "Confirm password",
+                    "sshPublicKey": "SSH public key"
+                },
+                "toolTip": {
+                    "authenticationType": "Choose Authentication type Password or PublicKey(SSH).",
+                    "password": "Enter the password for the specified user name.",
+                    "sshPublicKey": "Copy Public key into field."
+                },
+                "constraints": {
+                    "required": true
+                },
+                "options": {
+                    "hideConfirmation": false
+                },
+                "osPlatform": "Linux"
             }
         ],
-        "steps": [],
+        "steps": [{
+            "name": "nodeConfiguration",
+            "label": "Installation Configuration",
+            "subLabel": {
+                "preValidation": "Choose an appropriate virtual machine and storage account",
+                "postValidation": "Done"
+            },
+            "bladeTitle": "Virtual Machine Settings",
+            "elements": [{
+                "name": "vmSize",
+                "type": "Microsoft.Compute.SizeSelector",
+                "label": "Data node VM size",
+                "toolTip": "Choose VM SKU, Standard A2, A3, A4",
+                "recommendedSizes": [
+                    "Standard_A2",
+                    "Standard_A3",
+                    "Standard_A4"
+                ],
+                "constraints": {
+                    "allowedSizes": [
+                        "Standard_A0",
+                        "Standard_A1",
+                        "Standard_A2",
+                        "Standard_A3",
+                        "Standard_A4",
+                        "Standard_A5",
+                        "Standard_A6",
+                        "Standard_A7",
+                        "Standard_D1",
+                        "Standard_D2",
+                        "Standard_D3",
+                        "Standard_D4",
+                        "Standard_D11",
+                        "Standard_D12",
+                        "Standard_D13",
+                        "Standard_D14",
+                        "Standard_D1_v2",
+                        "Standard_D2_v2",
+                        "Standard_D3_v2",
+                        "Standard_D4_v2",
+                        "Standard_D5_v2",
+                        "Standard_D11_v2",
+                        "Standard_D12_v2",
+                        "Standard_D13_v2",
+                        "Standard_D14_v2",
+                        "Standard_D15_v2",
+                        "Standard_DS1",
+                        "Standard_DS2",
+                        "Standard_DS3",
+                        "Standard_DS4",
+                        "Standard_DS11",
+                        "Standard_DS12",
+                        "Standard_DS13",
+                        "Standard_DS14",
+                        "Standard_DS1_v2",
+                        "Standard_DS2_v2",
+                        "Standard_DS3_v2",
+                        "Standard_DS4_v2",
+                        "Standard_DS5_v2",
+                        "Standard_DS11_v2",
+                        "Standard_DS12_v2",
+                        "Standard_DS13_v2",
+                        "Standard_DS14_v2",
+                        "Standard_DS15_v2",
+                        "Standard_F1",
+                        "Standard_F2",
+                        "Standard_F4",
+                        "Standard_F8",
+                        "Standard_F16",
+                        "Standard_F1s",
+                        "Standard_F2s",
+                        "Standard_F4s",
+                        "Standard_F8s",
+                        "Standard_F16s"
+                    ]
+                },
+                "osPlatform": "Linux",
+                "count": 2
+            },
+            {
+                "name": "storageAccount",
+                "type": "Microsoft.Storage.StorageAccountSelector",
+                "label": "Storage account",
+                "toolTip": "Storage Account to use for grafana's sqlite database",
+                "defaultValue": {
+                  "type": "Standard_LRS"
+                },
+                "constraints": {
+                  "allowedTypes": [
+                    "Standard_LRS",
+                    "Standard_GRS"
+                  ]
+                },
+                "options": {
+                  "hideExisting": false
+                }
+              }
+        ]
+        },
+        {
+            "name": "networkConfiguration",
+            "label": "Network Configuration",
+            "bladeTitle": "Network Configuration",
+            "subLabel": {
+                "postValidation": "Done",
+                "preValidation": "Required"
+            },
+            "elements": [
+                {
+                    "name": "grafanaDomainName",
+                    "type": "Microsoft.Network.PublicIpAddressCombo",
+                    "label": {
+                        "publicIpAddress": "New public IP name",
+                        "domainNameLabel": "Domain name for Grafana"
+                    },
+                    "toolTip": {
+                        "publicIpAddress": "Only new public IP is currently supported. Name must be unique across a resource group",
+                        "domainNameLabel": "Grafana will be accessible from this domain"
+                    },
+                    "defaultValue": {
+                        "publicIpAddressName": "grafanaIP"
+                    },
+                    "constraints": {
+                        "required": {
+                            "domainNameLabel": true
+                        }
+                    },
+                    "options": {
+                        "hideNone": true,
+                        "hideDomainNameLabel": false
+                    }
+                },
+                {
+                    "name": "grafanaVnetSpec",
+                    "type": "Microsoft.Network.VirtualNetworkCombo",
+                    "label": {
+                        "virtualNetwork": "Virtual network",
+                        "subnets": "Subnets"
+                    },
+                    "toolTip": {
+                        "virtualNetwork": "",
+                        "subnets": ""
+                    },
+                    "defaultValue": {
+                        "name": "grafanaVnet",
+                        "addressPrefixSize": "/16"
+                    },
+                    "constraints": {
+                        "minAddressPrefixSize": "/29"
+                    },
+                    "subnets": {
+                        "subnet1": {
+                            "label": "grafana subnet",
+                            "defaultValue": {
+                                "name": "shsubnet",
+                                "addressPrefixSize": "/24"
+                            },
+                            "constraints": {
+                                "minAddressPrefixSize": "/29",
+                                "minAddressCount": 1,
+                                "requireContiguousAddresses": true
+                            }
+                        }
+                    }
+                }
+            ]
+        }],
         "outputs": {
-            "storageAccountNamePrefix": "[basics('storageAccounts')]"
+            "sshUsername": "[basics('sshUsername')]",
+            "authenticationType": "[basics('password').authenticationType]",
+            "sshPassword": "[basics('password').password]",
+            "sshPublicKey": "[basics('password').sshPublicKey]",
+            "vmSize": "[steps(nodeConfiguration).vmSize]",
+            "storageAccountName": "[steps('nodeConfiguration').storageAccount.name]",
+            "storageAccountType": "[steps('nodeConfiguration').storageAccount.type]",
+            "domainNamePrefix": "[steps('networkConfiguration').grafanaDomainName.domainNameLabel]",
+            "publicIPAddressName":"[steps('networkConfiguration').grafanaDomainName.name]",
+            "virtualNetworkName": "[steps('networkConfiguration').grafanaVnetSpec.name]",
+            "virtualNetworkNewOrExisting": "[steps('networkConfiguration').grafanaVnetSpec.newOrExisting]",
+            "virtualNetworkExistingRGName": "[steps('networkConfiguration').grafanaVnetSpec.resourceGroup]",
+            "virtualNetworkAddressPrefix": "[steps('networkConfiguration').grafanaVnetSpec.addressPrefix]",
+            "subnetName": "[steps('networkConfiguration').grafanaVnetSpec.subnets.subnet1.name]",
+            "subnetPrefix": "[steps('networkConfiguration').grafanaVnetSpec.subnets.subnet1.addressPrefix]",
+            "subnetStartAddress": "[steps('networkConfiguration').grafanaVnetSpec.subnets.subnet1.startAddress]"
         }
     }
-  }
+}
