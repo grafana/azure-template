@@ -18,11 +18,11 @@
     },
     "resources": [{
         "type": "Microsoft.Storage/storageAccounts",
-        "name": "[parameters('storageAccountName')]",
+        "name": "[variables('storageAccountName')]",
         "apiVersion": "2016-01-01",
         "location": "[parameters('location')]",
         "sku": {
-            "name": "[parameters('storageAccountType')]"
+            "name": "[variables('storageAccountType')]"
         },
         "kind": "Storage",
         "properties": {}

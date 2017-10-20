@@ -164,8 +164,8 @@
         "publicIPAddressName": "[parameters('publicIpAddressName')]",
         "publicIPAddressType": "Dynamic",
         "storageAccountSettings":{
-            "storageAccountName": "[parameters('storageAccountName']",
-            "storageAccountType": "[parameters('storageAccountType']"
+            "storageAccountName": "[parameters('storageAccountName')]",
+            "storageAccountType": "[parameters('storageAccountType')]"
         },
         "storageTemplateUrl": "[concat(variables('baseUrl'), 'nested/', 'storage-', parameters('storageAccountNewOrExisting'), '.json')]",
         "vmStorageAccountContainerName": "vhds",
@@ -240,7 +240,7 @@
                         "value": "[resourceGroup().location]"
                     },
                     "storageSettings": {
-                        "value": "[variables('storageSettings')]"
+                        "value": "[variables('storageAccountSettings')]"
                     }
                 }
             }
