@@ -65,7 +65,9 @@ install_plugins()
 # Update the grafana passord of the admin account
 configure_admin_password()
 {   
-    grafana-cli admin reset-admin-password ${ADMIN_PWD}
+    curl -X PUT -H "Content-Type: application/json" \
+    -d "{\"oldPassword\": \"admin\", \"newPassword\": \"${ADMIN_PWD}\", \"confirmNew\": \"${ADMIN_PWD}\"}" \
+    http://admin:admin@localhost:3000/api/user/password
 }
 
 install_grafana
