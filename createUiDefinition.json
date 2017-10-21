@@ -230,7 +230,7 @@
             "sshPassword": "[basics('password').password]",
             "sshPublicKey": "[basics('password').sshPublicKey]",
             "grafanaAdminPassword": "[basics('grafanaPassword')]",
-            "vmSize": "[steps(nodeConfiguration).vmSize]",
+            "vmSize": "[steps('nodeConfiguration').vmSize]",
             "storageAccountName": "[steps('nodeConfiguration').storageAccount.name]",
             "storageAccountType": "[steps('nodeConfiguration').storageAccount.type]",
             "storageAccountNewOrExisting": "[steps('nodeConfiguration').storageAccount.newOrExisting]",
