@@ -65,7 +65,7 @@ install_plugins()
 # Update the grafana passord of the admin account
 configure_admin_password()
 {   
-    sed -i "s/;admin_password = admin/;admin_password = ${ADMIN_PWD}/" /etc/grafana/grafana.ini
+    sed -i "s/;admin_password = admin/admin_password = ${ADMIN_PWD}/" /etc/grafana/grafana.ini
 }
 
 install_grafana
