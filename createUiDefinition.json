@@ -172,7 +172,7 @@
                             "domainNameLabel": "Domain name for Grafana"
                         },
                         "toolTip": {
-                            "publicIpAddress": "Only new public IP is currently supported. Name must be unique across a resource group",
+                            "publicIpAddress": "Select an IP address",
                             "domainNameLabel": "Grafana will be accessible from this domain"
                         },
                         "defaultValue": {
@@ -230,6 +230,7 @@
             "sshPassword": "[basics('password').password]",
             "sshPublicKey": "[basics('password').sshPublicKey]",
             "grafanaAdminPassword": "[basics('grafanaPassword')]",
+            "location": "[location()]",
             "vmSize": "[steps('nodeConfiguration').vmSize]",
             "storageAccountName": "[steps('nodeConfiguration').storageAccount.name]",
             "storageAccountType": "[steps('nodeConfiguration').storageAccount.type]",
@@ -237,6 +238,8 @@
             "storageAccountExistingRGName": "[steps('nodeConfiguration').storageAccount.resourceGroup]",
             "domainNamePrefix": "[steps('networkConfiguration').grafanaDomainName.domainNameLabel]",
             "publicIPAddressName": "[steps('networkConfiguration').grafanaDomainName.name]",
+            "publicIPAddressNewOrExisting": "[steps('networkConfiguration').grafanaDomainName.newOrExisting]",
+            "publicIPAddressExistingRGName": "[steps('networkConfiguration').grafanaDomainName.resourceGroup]",
             "virtualNetworkName": "[steps('networkConfiguration').grafanaVnetSpec.name]",
             "virtualNetworkNewOrExisting": "[steps('networkConfiguration').grafanaVnetSpec.newOrExisting]",
             "virtualNetworkExistingRGName": "[steps('networkConfiguration').grafanaVnetSpec.resourceGroup]",

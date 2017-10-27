@@ -39,6 +39,13 @@
                 "description": "These credentials give access to the grafana admin account"
             }
         },
+        "location": {
+            "type": "string",
+            "defaultValue": "eastus",
+            "metadata": {
+                "description": "Location where resources will be provisioned. By default, the template deploys the resources to the same location as the resource group. If specified, must be a valid Azure location e.g. 'australiasoutheast'"
+            }
+        },
         "namespace": {
             "type": "string",
             "defaultValue": "grafana",
@@ -46,18 +53,28 @@
                 "description": "Name for the Virtual Machine."
             }
         },
-        "protocol": {
-            "type": "string",
-            "defaultValue": "http",
-            "allowedValues": [
-                "http",
-                "https"
-            ]
-        },
         "publicIPAddressName": {
             "type": "string",
             "metadata": {
                 "description": "The IP address of the grafana instance"
+            }
+        },
+        "publicIPAddressNewOrExisting": {
+            "type": "string",
+            "defaultValue": "new",
+            "allowedValues": [
+                "new",
+                "existing"
+            ],
+            "metadata": {
+                "description": "Identifies whether to use new or existing Virtual Network"
+            }
+        },
+        "publicIPAddressExistingRGName": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": "Name of resource group of existing Virtual Network (if applicable)"
             }
         },
         "domainNamePrefix": {
@@ -140,39 +157,20 @@
             "metadata": {
                 "description": "Grafana subnet CIDR"
             }
-        },
-        "subnetStartAddress": {
-            "type": "string",
-            "defaultValue": "10.0.0.20",
-            "metadata": {
-                "description": "Grafana subnet start address"
-            }
         }
     },
     "variables": {
-        "baseUrl": "https://raw.githubusercontent.com/grafana/azure-marketplace/master/",
+        "baseUrl": "https://gallery.azure.com/artifact/20161101/grafana-labs.grafana_oss-previewstable.1.0.4/Artifacts/",
         "installScripts": [
             "[concat(variables('baseUrl'), 'scripts/install-grafana.sh')]"
         ],
         "installOpts": "[concat('-A ', parameters('grafanaAdminPassword'))]",
         "nicName": "[concat(parameters('namespace'), '-nic')]",
-        "publicIPAddressName": "[parameters('publicIpAddressName')]",
         "publicIPAddressType": "Dynamic",
         "vmStorageAccountContainerName": "vhds",
-        "virtualNetworkTemplateUrl": "[concat(variables('baseUrl'), 'nested/', 'vnet-', parameters('virtualNetworkNewOrExisting'), '.json')]",
-        "networkSettings": {
-            "virtualNetworkName": "[parameters('virtualNetworkName')]",
-            "virtualNetworkExistingRGName": "[parameters('virtualNetworkExistingRGName')]",
-            "virtualNetworkAddressPrefix": "[parameters('virtualNetworkAddressPrefix')]",
-            "subnet": {
-                "name": "[parameters('subnetName')]",
-                "prefix": "[parameters('subnetPrefix')]",
-                "vnet": "[parameters('virtualNetworkName')]"
-            }
-        },
-        "vnetId-new": "[concat(resourceGroup().id, '/providers/Microsoft.Network/virtualNetworks/',parameters('virtualNetworkName'))]",
-        "vnetId-existing": "[resourceId(parameters('virtualNetworkExistingRGName'),'Microsoft.Network/virtualNetworks/',parameters('virtualNetworkName'))]",
-        "vnetId": "[variables(concat('vnetId-', parameters('virtualNetworkNewOrExisting')))]",
+        "publicIPAddressId": "[if(equals(parameters('publicIPAddressNewOrExisting'), 'existing'), resourceId(parameters('publicIPAddressExistingRGName'), 'Microsoft.Network/publicIPAddresses', parameters('publicIPAddressName')), resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPAddressName')))]",
+        "vnetId": "[if(equals(parameters('virtualNetworkNewOrExisting'), 'existing'), resourceId(parameters('virtualNetworkExistingRGName'), 'Microsoft.Network/virtualNetworks', parameters('virtualNetworkName')), resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName')))]",
+        "storageAccountID": "[if(equals(parameters('storageAccountNewOrExisting'), 'existing'), resourceId(parameters('storageAccountExistingRGName'), 'Microsoft.Storage/storageAccounts', parameters('storageAccountName')), resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName')))]",
         "subnetRef": "[concat(variables('vnetId'),'/subnets/',parameters('subnetName'))]",
         "passwordAuth": {
             "computerName": "[concat(parameters('namespace'), '-vm')]",
@@ -196,23 +194,24 @@
         "securityGroupName": "[concat(parameters('namespace'), '-nsg')]"
     },
     "resources": [{
-            "name": "virtual-network",
-            "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2015-01-01",
+            "condition": "[equals(parameters('virtualNetworkNewOrExisting'), 'new')]",
+            "name": "[parameters('virtualNetworkName')]",
+            "apiVersion": "2017-06-01",
+            "type": "Microsoft.Network/virtualNetworks",
+            "location": "[parameters('location')]",
             "properties": {
-                "mode": "Incremental",
-                "templateLink": {
-                    "uri": "[variables('virtualNetworkTemplateUrl')]",
-                    "contentVersion": "0.0.0.1"
+                "addressSpace": {
+                    "addressPrefixes": [
+                        "[parameters('virtualNetworkAddressPrefix')]"
+                    ]
                 },
-                "parameters": {
-                    "location": {
-                        "value": "[resourceGroup().location]"
-                    },
-                    "networkSettings": {
-                        "value": "[variables('networkSettings')]"
+                "subnets": [{
+                        "name": "[parameters('subnetName')]",
+                        "properties": {
+                            "addressPrefix": "[parameters('subnetPrefix')]"
+                        }
                     }
-                }
+                ]
             }
         },
         {
@@ -220,7 +219,7 @@
             "type": "Microsoft.Storage/storageAccounts",
             "name": "[parameters('storageAccountName')]",
             "apiVersion": "2016-01-01",
-            "location": "[resourceGroup().location]",
+            "location": "[parameters('location')]",
             "sku": {
                 "name": "[parameters('storageAccountType')]"
             },
@@ -228,22 +227,23 @@
             "properties": {}
         },
         {
-            "apiVersion": "2015-06-15",
+            "condition": "[equals(parameters('publicIPAddressNewOrExisting'), 'new')]",
+            "apiVersion": "2017-06-01",
             "type": "Microsoft.Network/publicIPAddresses",
             "name": "[parameters('publicIPAddressName')]",
-            "location": "[resourceGroup().location]",
+            "location": "[parameters('location')]",
             "properties": {
                 "publicIPAllocationMethod": "[variables('publicIPAddressType')]",
-                "dnsSettings":{
+                "dnsSettings": {
                     "domainNameLabel": "[parameters('domainNamePrefix')]"
                 }
             }
         },
         {
-            "apiVersion": "2016-03-30",
+            "apiVersion": "2017-06-01",
             "type": "Microsoft.Network/networkSecurityGroups",
             "name": "[variables('securityGroupName')]",
-            "location": "[resourceGroup().location]",
+            "location": "[parameters('location')]",
             "properties": {
                 "securityRules": [{
                         "name": "SSH",
@@ -277,21 +277,21 @@
             }
         },
         {
-            "apiVersion": "2015-05-01-preview",
+            "apiVersion": "2017-06-01",
             "type": "Microsoft.Network/networkInterfaces",
             "name": "[variables('nicName')]",
-            "location": "[resourceGroup().location]",
+            "location": "[parameters('location')]",
             "dependsOn": [
                 "[concat('Microsoft.Network/publicIPAddresses/', parameters('publicIPAddressName'))]",
-                "[concat('Microsoft.Resources/deployments/', 'virtual-network')]"
+                "[concat('Microsoft.Network/virtualNetworks/', parameters('virtualNetworkName'))]"
             ],
             "properties": {
                 "ipConfigurations": [{
-                    "name": "ipconfig1",
+                    "name": "[concat(parameters('namespace'), '-ip-config')]",
                     "properties": {
                         "privateIPAllocationMethod": "Dynamic",
                         "publicIPAddress": {
-                            "id": "[resourceId('Microsoft.Network/publicIPAddresses',parameters('publicIPAddressName'))]"
+                            "id": "[variables('publicIPAddressId')]"
                         },
                         "subnet": {
                             "id": "[variables('subnetRef')]"
@@ -304,7 +304,7 @@
             "name": "[parameters('namespace')]",
             "type": "Microsoft.Compute/virtualMachines",
             "apiVersion": "2017-03-30",
-            "location": "[resourceGroup().location]",
+            "location": "[parameters('location')]",
             "dependsOn": [
                 "[concat('Microsoft.Network/networkInterfaces/', variables('nicName'))]",
                 "[concat('Microsoft.Storage/storageAccounts/', parameters('storageAccountName'))]"
@@ -321,7 +321,7 @@
                         "createOption": "FromImage",
                         "name": "osdisk",
                         "vhd": {
-                            "uri": "[concat(reference(concat('Microsoft.Storage/storageAccounts/', parameters('storageAccountName')), '2016-01-01').primaryEndpoints.blob, variables('vmStorageAccountContainerName'), '/',variables('OSDiskName'),'.vhd')]"
+                            "uri": "[concat(reference(variables('storageAccountID')).primaryEndpoints.blob, variables('vmStorageAccountContainerName'), '/',variables('OSDiskName'),'.vhd')]"
                         }
                     }
                 },
@@ -339,7 +339,7 @@
                 "type": "extensions",
                 "name": "installGrafana",
                 "apiVersion": "2017-03-30",
-                "location": "[resourceGroup().location]",
+                "location": "[parameters('location')]",
                 "dependsOn": [
                     "[concat('Microsoft.Compute/virtualMachines/', parameters('namespace'))]"
                 ],
@@ -355,8 +355,7 @@
                         "commandToExecute": "[concat('bash install-grafana.sh ', variables('installOpts'))]"
                     }
                 }
-            }
-        ]
+            }]
         }
     ],
     "outputs": {}
