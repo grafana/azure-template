@@ -289,7 +289,7 @@
                 "ipConfigurations": [{
                     "name": "[concat(parameters('namespace'), '-ip-config')]",
                     "properties": {
-                        "privateIPAllocationMethod": "Dynamic",
+                        "privateIPAllocationMethod": "[variables('publicIPAddressType')]",
                         "publicIPAddress": {
                             "id": "[variables('publicIPAddressId')]"
                         },
