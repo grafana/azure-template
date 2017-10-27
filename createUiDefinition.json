@@ -245,8 +245,7 @@
             "virtualNetworkExistingRGName": "[steps('networkConfiguration').grafanaVnetSpec.resourceGroup]",
             "virtualNetworkAddressPrefix": "[steps('networkConfiguration').grafanaVnetSpec.addressPrefix]",
             "subnetName": "[steps('networkConfiguration').grafanaVnetSpec.subnets.subnet1.name]",
-            "subnetPrefix": "[steps('networkConfiguration').grafanaVnetSpec.subnets.subnet1.addressPrefix]",
-            "subnetStartAddress": "[steps('networkConfiguration').grafanaVnetSpec.subnets.subnet1.startAddress]"
+            "subnetPrefix": "[steps('networkConfiguration').grafanaVnetSpec.subnets.subnet1.addressPrefix]"
         }
     }
 }
