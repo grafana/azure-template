@@ -164,12 +164,12 @@
                "description":"Base URL for Marketplace",
                "artifactsBaseUrl":""
             },
-            "defaultValue":"https://raw.githubusercontent.com/grafana/azure-marketplace/master/"
+            "defaultValue":"https://raw.githubusercontent.com/grafana/azure-marketplace/master"
          }
     },
     "variables": {
         "installScripts": [
-            "[concat(parameters('baseUrl'), 'scripts/install-grafana.sh')]"
+            "[concat(parameters('baseUrl'), '/scripts/install-grafana.sh')]"
         ],
         "installOpts": "[concat('-A ', parameters('grafanaAdminPassword'))]",
         "nicName": "[concat(parameters('namespace'), '-nic')]",

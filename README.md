@@ -1,6 +1,11 @@
 # Grafana Azure Marketplace Offer
 
-### Web based deploy
-<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fgrafana%2Fazure-marketplace%2Fmaster%2FmainTemplate.json" target="_blank">
-   <img alt="Deploy to Azure" src="http://azuredeploy.net/deploybutton.png"/>
-</a>
+## Roadmap
+
+* Configurable port for grafana-server
+* Option to upload and set up https certs and keys
+* LDAP Configuration
+* Default Azure monitoring dashboards
+* Configure the ability to install additional plugins
+* Allow user to select grafana version
+* SQL backend integration
