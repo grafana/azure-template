@@ -72,7 +72,7 @@
         },
         "publicIPAddressExistingRGName": {
             "type": "string",
-            "defaultValue": "",
+            "defaultValue": "[resourceGroup().name]",
             "metadata": {
                 "description": "Name of resource group of existing Virtual Network (if applicable)"
             }
@@ -104,7 +104,7 @@
         },
         "storageAccountExistingRGName": {
             "type": "string",
-            "defaultValue": ""
+            "defaultValue": "[resourceGroup().name]"
         },
         "vmSize": {
             "type": "string",
@@ -132,7 +132,7 @@
         },
         "virtualNetworkExistingRGName": {
             "type": "string",
-            "defaultValue": "",
+            "defaultValue": "[resourceGroup().name]",
             "metadata": {
                 "description": "Name of resource group of existing Virtual Network (if applicable)"
             }
@@ -175,9 +175,9 @@
         "nicName": "[concat(parameters('namespace'), '-nic')]",
         "publicIPAddressType": "Dynamic",
         "vmStorageAccountContainerName": "vhds",
-        "publicIPAddressId": "[if(equals(parameters('publicIPAddressNewOrExisting'), 'existing'), resourceId(parameters('publicIPAddressExistingRGName'), 'Microsoft.Network/publicIPAddresses', parameters('publicIPAddressName')), resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPAddressName')))]",
-        "vnetId": "[if(equals(parameters('virtualNetworkNewOrExisting'), 'existing'), resourceId(parameters('virtualNetworkExistingRGName'), 'Microsoft.Network/virtualNetworks', parameters('virtualNetworkName')), resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName')))]",
-        "storageAccountID": "[if(equals(parameters('storageAccountNewOrExisting'), 'existing'), resourceId(parameters('storageAccountExistingRGName'), 'Microsoft.Storage/storageAccounts', parameters('storageAccountName')), resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName')))]",
+        "publicIPAddressId": "[resourceId(parameters('publicIPAddressExistingRGName'), 'Microsoft.Network/publicIPAddresses', parameters('publicIPAddressName'))]",
+        "vnetId": "[resourceId(parameters('virtualNetworkExistingRGName'), 'Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]",
+        "storageAccountID": "[resourceId(parameters('storageAccountExistingRGName'), 'Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]",
         "subnetRef": "[concat(variables('vnetId'),'/subnets/',parameters('subnetName'))]",
         "passwordAuth": {
             "computerName": "[concat(parameters('namespace'), '-vm')]",
