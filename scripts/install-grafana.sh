@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Command Line Opts
-GRAFANA_VERSION="4.5.2"
+GRAFANA_VERSION="5.1.0"
 GRAFANA_PORT="3000"
 
 
@@ -51,7 +51,7 @@ done
 
 # Install Grafana
 install_grafana()
-{   
+{
     log "Downloading grafana with version ${GRAFANA_VERSION}"
     local DOWNLOAD_URL="https://s3-us-west-2.amazonaws.com/grafana-releases/release/grafana_${GRAFANA_VERSION}_amd64.deb"
     sudo apt-get install -y adduser libfontconfig
@@ -77,7 +77,7 @@ install_azure_monitor_plugin()
 
 # Update the grafana passord of the admin account
 configure_admin_password()
-{   
+{
     sed -i "s/;admin_password = admin/admin_password = ${ADMIN_PWD}/" /etc/grafana/grafana.ini
 }
 
