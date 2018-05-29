@@ -200,7 +200,21 @@
         "OSDiskName": "concat(parameters('namespace'), '-disk')",
         "securityGroupName": "[concat(parameters('namespace'), '-nsg')]"
     },
-    "resources": [{
+    "resources": [
+        {
+			"apiVersion": "2017-05-10",
+			"name": "pid-947d6d2b-7126-49f4-91af-eab5ea804f2b",
+			"type": "Microsoft.Resources/deployments",
+			"properties": {
+				"mode": "Incremental",
+				"template": {
+					"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+					"contentVersion": "1.0.0.0",
+					"resources": []
+				}
+			}
+		},
+        {
             "condition": "[equals(parameters('virtualNetworkNewOrExisting'), 'new')]",
             "name": "[parameters('virtualNetworkName')]",
             "apiVersion": "2017-06-01",
