@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Command Line Opts
-GRAFANA_VERSION="5.4.3"
+GRAFANA_VERSION="6.2.5"
 GRAFANA_PORT="3000"
 
 
@@ -67,11 +67,11 @@ start_grafana()
     sudo systemctl enable grafana-server.service
 }
 
-# Install the Azure Monitor Datasource
-install_azure_monitor_plugin()
+# Install the Azure Data Explorer Datasource
+install_azure_data_explorer_plugin()
 {
-    log "Install grafana-azure-monitor-datasource"
-    grafana-cli plugins install grafana-azure-monitor-datasource
+    log "Install grafana-azure-data-explorer-datasource"
+    grafana-cli plugins install grafana-azure-data-explorer-datasource
     systemctl restart grafana-server
 }
 
@@ -84,4 +84,4 @@ configure_admin_password()
 install_grafana
 configure_admin_password
 start_grafana
-install_azure_monitor_plugin
+install_azure_data_explorer_plugin
