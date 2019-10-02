@@ -158,18 +158,24 @@
                 "description": "Grafana subnet CIDR"
             }
         },
-        "baseUrl":{
-            "type":"string",
-            "metadata":{
-               "description":"Base URL for Marketplace",
-               "artifactsBaseUrl":""
+         "_artifactsLocation": {
+            "type": "string",
+            "metadata": {
+                "description": "Base URL for Marketplace"
             },
-            "defaultValue":"https://raw.githubusercontent.com/grafana/azure-marketplace/master"
-         }
+            "defaultValue": "https://raw.githubusercontent.com/grafana/azure-marketplace/master/"
+        },
+        "_artifactsLocationSasToken": {
+            "type": "securestring",
+            "metadata": {
+                "description": "The sasToken required to access _artifactsLocation"
+            },
+            "defaultValue": ""
+        }
     },
     "variables": {
         "installScripts": [
-            "[concat(parameters('baseUrl'), '/scripts/install-grafana.sh')]"
+            "[uri(parameters('_artifactsLocation'), concat('scripts/install-grafana.sh', parameters('_artifactsLocationSasToken')))]"
         ],
         "installOpts": "[concat('-A ', parameters('grafanaAdminPassword'))]",
         "nicName": "[concat(parameters('namespace'), '-nic')]",
