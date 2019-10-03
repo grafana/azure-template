@@ -163,7 +163,7 @@
             "metadata": {
                 "description": "Base URL for Marketplace"
             },
-            "defaultValue": "https://raw.githubusercontent.com/grafana/azure-marketplace/master/"
+            "defaultValue": "[deployment().properties.templateLink.uri]"
         },
         "_artifactsLocationSasToken": {
             "type": "securestring",
