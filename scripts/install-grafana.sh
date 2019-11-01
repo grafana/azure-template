@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Command Line Opts
-GRAFANA_VERSION="6.2.5"
+GRAFANA_VERSION="6.4.3"
 GRAFANA_PORT="3000"
 
 
