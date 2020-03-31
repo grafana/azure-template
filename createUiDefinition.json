@@ -7,9 +7,9 @@
       {
         "name": "sshUsername",
         "type": "Microsoft.Compute.UserNameTextBox",
-        "label": "User name",
+        "label": "Username",
         "defaultValue": "",
-        "toolTip": "Specify a user for accessing the virtual machines within your cluster. Must be a valid Ubuntu username",
+        "toolTip": "Specify a user for accessing the virtual machines within your cluster. Must be a valid Ubuntu username.",
         "constraints": {
           "required": true,
           "regex": "^(?!(?:adm|admin|audio|backup|bin|cdrom|crontab|daemon|dialout|dip|disk|fax|floppy|fuse|games|gnats|irc|kmem|landscape|libuuid|list|lp|mail|man|messagebus|mlocate|netdev|news|nobody|nogroup|operator|plugdev|proxy|root|sasl|shadow|src|ssh|sshd|staff|sudo|sync|sys|syslog|tape|tty|users|utmp|uucp|video|voice|whoopsie|www\\-data)$)\\w+$",
@@ -27,8 +27,8 @@
           "sshPublicKey": "SSH public key"
         },
         "toolTip": {
-          "authenticationType": "Choose Authentication type Password or PublicKey(SSH).",
-          "password": "Enter the password for the specified user name.",
+          "authenticationType": "Choose Authentication type Password or PublicKey (SSH).",
+          "password": "Enter the password for the specified username.",
           "sshPublicKey": "Copy Public key into field."
         },
         "constraints": {
@@ -46,7 +46,7 @@
           "password": "Grafana Admin Password",
           "confirmPassword": "Confirm Grafana Admin password"
         },
-        "toolTip": "Set the password for the Grafana Admin account",
+        "toolTip": "Set the password for the Grafana Admin account.",
         "constraints": {
           "required": true
         },
@@ -70,7 +70,7 @@
             "name": "vmSize",
             "type": "Microsoft.Compute.SizeSelector",
             "label": "Data node VM size",
-            "toolTip": "Choose VM SKU, Standard A2, A3, A4",
+            "toolTip": "Choose VM SKU, Standard A2, A3, A4.",
             "recommendedSizes": [
               "Standard_A2",
               "Standard_A3",
@@ -141,7 +141,7 @@
             "name": "storageAccount",
             "type": "Microsoft.Storage.StorageAccountSelector",
             "label": "Storage account",
-            "toolTip": "Storage Account to use for grafana's sqlite database",
+            "toolTip": "Storage Account to use for grafana's sqlite database.",
             "defaultValue": {
               "type": "Standard_LRS"
             },
@@ -176,8 +176,8 @@
               "domainNameLabel": "Domain name for Grafana"
             },
             "toolTip": {
-              "publicIpAddress": "Select an IP address",
-              "domainNameLabel": "Grafana will be accessible from this domain"
+              "publicIpAddress": "Select an IP address.",
+              "domainNameLabel": "Grafana will be accessible from this domain."
             },
             "defaultValue": {
               "publicIpAddressName": "grafanaIP"

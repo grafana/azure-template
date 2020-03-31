@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
-  "contentVersion": "0.0.0.1",
+  "contentVersion": "1.0.0.0",
   "parameters": {
     "authenticationType": {
       "type": "string",
@@ -30,33 +30,33 @@
       "type": "securestring",
       "defaultValue": "",
       "metadata": {
-        "description": "ssh key for the Virtual Machine."
+        "description": "SSH key for the Virtual Machine."
       }
     },
     "grafanaAdminPassword": {
       "type": "securestring",
       "metadata": {
-        "description": "These credentials give access to the grafana admin account"
+        "description": "These credentials give access to the Grafana admin account."
       }
     },
     "location": {
       "type": "string",
       "defaultValue": "[resourceGroup().location]",
       "metadata": {
-        "description": "Location where resources will be provisioned. By default, the template deploys the resources to the same location as the resource group. If specified, must be a valid Azure location e.g. 'australiasoutheast'"
+        "description": "Location where resources will be provisioned. By default, the template deploys the resources to the same location as the resource group. If specified, must be a valid Azure location, e.g. 'australiasoutheast'."
       }
     },
     "namespace": {
       "type": "string",
       "defaultValue": "grafana",
       "metadata": {
-        "description": "Name for the Virtual Machine."
+        "description": "Name of the Virtual Machine."
       }
     },
     "publicIPAddressName": {
       "type": "string",
       "metadata": {
-        "description": "The IP address of the grafana instance"
+        "description": "The IP address of the Grafana instance."
       }
     },
     "publicIPAddressNewOrExisting": {
@@ -67,20 +67,20 @@
         "existing"
       ],
       "metadata": {
-        "description": "Identifies whether to use new or existing Virtual Network"
+        "description": "Specifies whether to use new or existing Virtual Network."
       }
     },
     "publicIPAddressExistingRGName": {
       "type": "string",
       "defaultValue": "[resourceGroup().name]",
       "metadata": {
-        "description": "Name of resource group of existing Virtual Network (if applicable)"
+        "description": "Name of resource group of existing Virtual Network (if applicable)."
       }
     },
     "domainNamePrefix": {
       "type": "string",
       "metadata": {
-        "description": "Prefix for domain name to access Grafana which is in the format: {prefix}.{location}.cloudapp.azure.com"
+        "description": "Prefix for domain name to access Grafana, on the following format: {prefix}.{location}.cloudapp.azure.com."
       }
     },
     "storageAccountName": {
@@ -98,25 +98,28 @@
         "existing"
       ],
       "metadata": {
-        "description": "Name of resource group of existing Storage Group (if applicable)"
+        "description": "Specifies whether to use new or existing Storage Group."
       },
       "defaultValue": "new"
     },
     "storageAccountExistingRGName": {
       "type": "string",
+      "metadata": {
+        "description": "Name of resource group of existing Storage Group (if applicable)."
+      },
       "defaultValue": "[resourceGroup().name]"
     },
     "vmSize": {
       "type": "string",
       "defaultValue": "Standard_A2",
       "metadata": {
-        "description": "size of the vm to use for the grafana instance"
+        "description": "Size of the vm to use for the grafana instance."
       }
     },
     "virtualNetworkName": {
       "type": "string",
       "metadata": {
-        "description": "Name of the virtual network that the consumer wants to use"
+        "description": "Name of the virtual network that the consumer wants to use."
       }
     },
     "virtualNetworkNewOrExisting": {
@@ -127,48 +130,48 @@
         "existing"
       ],
       "metadata": {
-        "description": "Identifies whether to use new or existing Virtual Network"
+        "description": "Specifies whether to use new or existing Virtual Network."
       }
     },
     "virtualNetworkExistingRGName": {
       "type": "string",
       "defaultValue": "[resourceGroup().name]",
       "metadata": {
-        "description": "Name of resource group of existing Virtual Network (if applicable)"
+        "description": "Name of resource group of existing Virtual Network (if applicable)."
       }
     },
     "virtualNetworkAddressPrefix": {
       "type": "string",
       "defaultValue": "10.0.0.0/16",
       "metadata": {
-        "description": "Virtual network address"
+        "description": "Virtual network address."
       }
     },
     "subnetName": {
       "type": "string",
       "defaultValue": "grafanaSubnet",
       "metadata": {
-        "description": "Subnet for grafana"
+        "description": "Subnet for Grafana."
       }
     },
     "subnetPrefix": {
       "type": "string",
       "defaultValue": "10.0.0.0/24",
       "metadata": {
-        "description": "Grafana subnet CIDR"
+        "description": "Grafana subnet CIDR."
       }
     },
     "_artifactsLocation": {
       "type": "string",
       "metadata": {
-        "description": "Base URL for Marketplace"
+        "description": "Base URL for Marketplace."
       },
       "defaultValue": "[deployment().properties.templateLink.uri]"
     },
     "_artifactsLocationSasToken": {
       "type": "securestring",
       "metadata": {
-        "description": "The sasToken required to access _artifactsLocation"
+        "description": "The sasToken required to access _artifactsLocation."
       },
       "defaultValue": ""
     }
@@ -279,7 +282,7 @@
           {
             "name": "SSH",
             "properties": {
-              "description": "Allows inbound SSH traffic",
+              "description": "Allows inbound SSH traffic.",
               "protocol": "Tcp",
               "sourcePortRange": "*",
               "destinationPortRange": "22",
@@ -293,7 +296,7 @@
           {
             "name": "Grafana",
             "properties": {
-              "description": "Allows inbound grafana HTTP traffic",
+              "description": "Allows inbound Grafana HTTP traffic.",
               "protocol": "Tcp",
               "sourcePortRange": "*",
               "destinationPortRange": "3000",
