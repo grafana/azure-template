@@ -85,10 +85,16 @@
     },
     "storageAccountName": {
       "type": "string",
+      "metadata": {
+        "description": "Storage account name. Storage account names must be between 3 and 24 characters in length and use numbers and lower-case letters only."
+      },
       "maxLength": 24
     },
     "storageAccountType": {
       "type": "string",
+      "metadata": {
+        "description": "Storage account SKU. Standard_LRS, Standard_GRS, Standard_RAGRS, Standard_ZRS, Premium_LRS, Premium_ZRS, Standard_GZRS, Standard_RAGZRS."
+      },
       "defaultValue": "Standard_LRS"
     },
     "storageAccountNewOrExisting": {
