@@ -1,389 +1,399 @@
 {
-    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
-    "contentVersion": "0.0.0.1",
-    "parameters": {
-        "authenticationType": {
-            "type": "string",
-            "defaultValue": "password",
-            "allowedValues": [
-                "password",
-                "sshPublicKey"
-            ],
-            "metadata": {
-                "description": "Type of authentication to use on the Virtual Machine."
-            }
-        },
-        "sshUsername": {
-            "type": "string",
-            "metadata": {
-                "description": "These credentials can be used to remotely access the cluster."
-            }
-        },
-        "sshPassword": {
-            "type": "securestring",
-            "defaultValue": "",
-            "metadata": {
-                "description": "These credentials can be used to remotely access the cluster."
-            }
-        },
-        "sshPublicKey": {
-            "type": "securestring",
-            "defaultValue": "",
-            "metadata": {
-                "description": "ssh key for the Virtual Machine."
-            }
-        },
-        "grafanaAdminPassword": {
-            "type": "securestring",
-            "metadata": {
-                "description": "These credentials give access to the grafana admin account"
-            }
-        },
-        "location": {
-            "type": "string",
-            "defaultValue": "[resourceGroup().location]",
-            "metadata": {
-                "description": "Location where resources will be provisioned. By default, the template deploys the resources to the same location as the resource group. If specified, must be a valid Azure location e.g. 'australiasoutheast'"
-            }
-        },
-        "namespace": {
-            "type": "string",
-            "defaultValue": "grafana",
-            "metadata": {
-                "description": "Name for the Virtual Machine."
-            }
-        },
-        "publicIPAddressName": {
-            "type": "string",
-            "metadata": {
-                "description": "The IP address of the grafana instance"
-            }
-        },
-        "publicIPAddressNewOrExisting": {
-            "type": "string",
-            "defaultValue": "new",
-            "allowedValues": [
-                "new",
-                "existing"
-            ],
-            "metadata": {
-                "description": "Identifies whether to use new or existing Virtual Network"
-            }
-        },
-        "publicIPAddressExistingRGName": {
-            "type": "string",
-            "defaultValue": "[resourceGroup().name]",
-            "metadata": {
-                "description": "Name of resource group of existing Virtual Network (if applicable)"
-            }
-        },
-        "domainNamePrefix": {
-            "type": "string",
-            "metadata": {
-                "description": "Prefix for domain name to access Grafana which is in the format: {prefix}.{location}.cloudapp.azure.com"
-            }
-        },
-        "storageAccountName": {
-            "type": "string",
-            "maxLength": 24
-        },
-        "storageAccountType": {
-            "type": "string",
-            "defaultValue": "Standard_LRS"
-        },
-        "storageAccountNewOrExisting": {
-            "type": "string",
-            "allowedValues": [
-                "new",
-                "existing"
-            ],
-            "metadata": {
-                "description": "Name of resource group of existing Storage Group (if applicable)"
-            },
-            "defaultValue": "new"
-        },
-        "storageAccountExistingRGName": {
-            "type": "string",
-            "defaultValue": "[resourceGroup().name]"
-        },
-        "vmSize": {
-            "type": "string",
-            "defaultValue": "Standard_A2",
-            "metadata": {
-                "description": "size of the vm to use for the grafana instance"
-            }
-        },
-        "virtualNetworkName": {
-            "type": "string",
-            "metadata": {
-                "description": "Name of the virtual network that the consumer wants to use"
-            }
-        },
-        "virtualNetworkNewOrExisting": {
-            "type": "string",
-            "defaultValue": "new",
-            "allowedValues": [
-                "new",
-                "existing"
-            ],
-            "metadata": {
-                "description": "Identifies whether to use new or existing Virtual Network"
-            }
-        },
-        "virtualNetworkExistingRGName": {
-            "type": "string",
-            "defaultValue": "[resourceGroup().name]",
-            "metadata": {
-                "description": "Name of resource group of existing Virtual Network (if applicable)"
-            }
-        },
-        "virtualNetworkAddressPrefix": {
-            "type": "string",
-            "defaultValue": "10.0.0.0/16",
-            "metadata": {
-                "description": "Virtual network address"
-            }
-        },
-        "subnetName": {
-            "type": "string",
-            "defaultValue": "grafanaSubnet",
-            "metadata": {
-                "description": "Subnet for grafana"
-            }
-        },
-        "subnetPrefix": {
-            "type": "string",
-            "defaultValue": "10.0.0.0/24",
-            "metadata": {
-                "description": "Grafana subnet CIDR"
-            }
-        },
-         "_artifactsLocation": {
-            "type": "string",
-            "metadata": {
-                "description": "Base URL for Marketplace"
-            },
-            "defaultValue": "[deployment().properties.templateLink.uri]"
-        },
-        "_artifactsLocationSasToken": {
-            "type": "securestring",
-            "metadata": {
-                "description": "The sasToken required to access _artifactsLocation"
-            },
-            "defaultValue": ""
-        }
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "0.0.0.1",
+  "parameters": {
+    "authenticationType": {
+      "type": "string",
+      "defaultValue": "password",
+      "allowedValues": [
+        "password",
+        "sshPublicKey"
+      ],
+      "metadata": {
+        "description": "Type of authentication to use on the Virtual Machine."
+      }
     },
-    "variables": {
-        "installScripts": [
-            "[uri(parameters('_artifactsLocation'), concat('scripts/install-grafana.sh', parameters('_artifactsLocationSasToken')))]"
-        ],
-        "installOpts": "[concat('-A ', parameters('grafanaAdminPassword'))]",
-        "nicName": "[concat(parameters('namespace'), '-nic')]",
-        "publicIPAddressType": "Dynamic",
-        "vmStorageAccountContainerName": "vhds",
-        "publicIPAddressId": "[resourceId(parameters('publicIPAddressExistingRGName'), 'Microsoft.Network/publicIPAddresses', parameters('publicIPAddressName'))]",
-        "vnetId": "[resourceId(parameters('virtualNetworkExistingRGName'), 'Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]",
-        "storageAccountID": "[resourceId(parameters('storageAccountExistingRGName'), 'Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]",
-        "subnetRef": "[concat(variables('vnetId'),'/subnets/',parameters('subnetName'))]",
-        "passwordAuth": {
-            "computerName": "[concat(parameters('namespace'), '-vm')]",
-            "adminUsername": "[parameters('sshUsername')]",
-            "adminPassword": "[parameters('sshPassword')]"
-        },
-        "sshAuth": {
-            "computerName": "[concat(parameters('namespace'), '-vm')]",
-            "adminUsername": "[parameters('sshUsername')]",
-            "linuxConfiguration": {
-                "disablePasswordAuthentication": true,
-                "ssh": {
-                    "publicKeys": [{
-                        "path": "[concat('/home/', parameters('sshUsername'), '/.ssh/authorized_keys')]",
-                        "keyData": "[parameters('sshPublicKey')]"
-                    }]
-                }
-            }
-        },
-        "OSDiskName": "concat(parameters('namespace'), '-disk')",
-        "securityGroupName": "[concat(parameters('namespace'), '-nsg')]"
+    "sshUsername": {
+      "type": "string",
+      "metadata": {
+        "description": "These credentials can be used to remotely access the cluster."
+      }
     },
-    "resources": [
-        {
-			"apiVersion": "2017-05-10",
-			"name": "pid-947d6d2b-7126-49f4-91af-eab5ea804f2b",
-			"type": "Microsoft.Resources/deployments",
-			"properties": {
-				"mode": "Incremental",
-				"template": {
-					"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
-					"contentVersion": "1.0.0.0",
-					"resources": []
-				}
-			}
-		},
-        {
-            "condition": "[equals(parameters('virtualNetworkNewOrExisting'), 'new')]",
-            "name": "[parameters('virtualNetworkName')]",
-            "apiVersion": "2017-06-01",
-            "type": "Microsoft.Network/virtualNetworks",
-            "location": "[parameters('location')]",
-            "properties": {
-                "addressSpace": {
-                    "addressPrefixes": [
-                        "[parameters('virtualNetworkAddressPrefix')]"
-                    ]
-                },
-                "subnets": [{
-                        "name": "[parameters('subnetName')]",
-                        "properties": {
-                            "addressPrefix": "[parameters('subnetPrefix')]"
-                        }
-                    }
-                ]
-            }
-        },
-        {
-            "condition": "[equals(parameters('storageAccountNewOrExisting'), 'new')]",
-            "type": "Microsoft.Storage/storageAccounts",
-            "name": "[parameters('storageAccountName')]",
-            "apiVersion": "2016-01-01",
-            "location": "[parameters('location')]",
-            "sku": {
-                "name": "[parameters('storageAccountType')]"
-            },
-            "kind": "Storage",
-            "properties": {}
-        },
-        {
-            "condition": "[equals(parameters('publicIPAddressNewOrExisting'), 'new')]",
-            "apiVersion": "2017-06-01",
-            "type": "Microsoft.Network/publicIPAddresses",
-            "name": "[parameters('publicIPAddressName')]",
-            "location": "[parameters('location')]",
-            "properties": {
-                "publicIPAllocationMethod": "[variables('publicIPAddressType')]",
-                "dnsSettings": {
-                    "domainNameLabel": "[parameters('domainNamePrefix')]"
-                }
-            }
-        },
-        {
-            "apiVersion": "2017-06-01",
-            "type": "Microsoft.Network/networkSecurityGroups",
-            "name": "[variables('securityGroupName')]",
-            "location": "[parameters('location')]",
-            "properties": {
-                "securityRules": [{
-                        "name": "SSH",
-                        "properties": {
-                            "description": "Allows inbound SSH traffic",
-                            "protocol": "Tcp",
-                            "sourcePortRange": "*",
-                            "destinationPortRange": "22",
-                            "sourceAddressPrefix": "*",
-                            "destinationAddressPrefix": "*",
-                            "access": "Allow",
-                            "priority": 100,
-                            "direction": "Inbound"
-                        }
-                    },
-                    {
-                        "name": "Grafana",
-                        "properties": {
-                            "description": "Allows inbound grafana HTTP traffic",
-                            "protocol": "Tcp",
-                            "sourcePortRange": "*",
-                            "destinationPortRange": "3000",
-                            "sourceAddressPrefix": "*",
-                            "destinationAddressPrefix": "*",
-                            "access": "Allow",
-                            "priority": 200,
-                            "direction": "Inbound"
-                        }
-                    }
-                ]
-            }
-        },
-        {
-            "apiVersion": "2017-06-01",
-            "type": "Microsoft.Network/networkInterfaces",
-            "name": "[variables('nicName')]",
-            "location": "[parameters('location')]",
-            "dependsOn": [
-                "[concat('Microsoft.Network/publicIPAddresses/', parameters('publicIPAddressName'))]",
-                "[concat('Microsoft.Network/virtualNetworks/', parameters('virtualNetworkName'))]"
-            ],
-            "properties": {
-                "ipConfigurations": [{
-                    "name": "[concat(parameters('namespace'), '-ip-config')]",
-                    "properties": {
-                        "privateIPAllocationMethod": "[variables('publicIPAddressType')]",
-                        "publicIPAddress": {
-                            "id": "[variables('publicIPAddressId')]"
-                        },
-                        "subnet": {
-                            "id": "[variables('subnetRef')]"
-                        }
-                    }
-                }]
-            }
-        },
-        {
-            "name": "[parameters('namespace')]",
-            "type": "Microsoft.Compute/virtualMachines",
-            "apiVersion": "2017-03-30",
-            "location": "[parameters('location')]",
-            "dependsOn": [
-                "[concat('Microsoft.Network/networkInterfaces/', variables('nicName'))]",
-                "[concat('Microsoft.Storage/storageAccounts/', parameters('storageAccountName'))]"
-            ],
-            "properties": {
-                "storageProfile": {
-                    "imageReference": {
-                        "publisher": "Canonical",
-                        "offer": "UbuntuServer",
-                        "sku": "16.04-LTS",
-                        "version": "latest"
-                    },
-                    "osDisk": {
-                        "createOption": "FromImage",
-                        "name": "osdisk",
-                        "vhd": {
-                            "uri": "[concat(reference(variables('storageAccountID')).primaryEndpoints.blob, variables('vmStorageAccountContainerName'), '/',variables('OSDiskName'),'.vhd')]"
-                        }
-                    }
-                },
-                "hardwareProfile": {
-                    "vmSize": "[parameters('vmSize')]"
-                },
-                "osProfile": "[if(equals(parameters('authenticationType'), 'password'), variables('passwordAuth'), variables('sshAuth'))]",
-                "networkProfile": {
-                    "networkInterfaces": [{
-                        "id": "[resourceId('Microsoft.Network/networkInterfaces',variables('nicName'))]"
-                    }]
-                }
-            },
-            "resources": [{
-                "type": "extensions",
-                "name": "installGrafana",
-                "apiVersion": "2017-03-30",
-                "location": "[parameters('location')]",
-                "dependsOn": [
-                    "[concat('Microsoft.Compute/virtualMachines/', parameters('namespace'))]"
-                ],
-                "properties": {
-                    "publisher": "Microsoft.Azure.Extensions",
-                    "type": "CustomScript",
-                    "typeHandlerVersion": "2.0",
-                    "autoUpgradeMinorVersion": true,
-                    "settings": {
-                        "fileUris": "[variables('installScripts')]"
-                    },
-                    "protectedSettings": {
-                        "commandToExecute": "[concat('bash install-grafana.sh ', variables('installOpts'))]"
-                    }
-                }
-            }]
-        }
+    "sshPassword": {
+      "type": "securestring",
+      "defaultValue": "",
+      "metadata": {
+        "description": "These credentials can be used to remotely access the cluster."
+      }
+    },
+    "sshPublicKey": {
+      "type": "securestring",
+      "defaultValue": "",
+      "metadata": {
+        "description": "ssh key for the Virtual Machine."
+      }
+    },
+    "grafanaAdminPassword": {
+      "type": "securestring",
+      "metadata": {
+        "description": "These credentials give access to the grafana admin account"
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Location where resources will be provisioned. By default, the template deploys the resources to the same location as the resource group. If specified, must be a valid Azure location e.g. 'australiasoutheast'"
+      }
+    },
+    "namespace": {
+      "type": "string",
+      "defaultValue": "grafana",
+      "metadata": {
+        "description": "Name for the Virtual Machine."
+      }
+    },
+    "publicIPAddressName": {
+      "type": "string",
+      "metadata": {
+        "description": "The IP address of the grafana instance"
+      }
+    },
+    "publicIPAddressNewOrExisting": {
+      "type": "string",
+      "defaultValue": "new",
+      "allowedValues": [
+        "new",
+        "existing"
+      ],
+      "metadata": {
+        "description": "Identifies whether to use new or existing Virtual Network"
+      }
+    },
+    "publicIPAddressExistingRGName": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().name]",
+      "metadata": {
+        "description": "Name of resource group of existing Virtual Network (if applicable)"
+      }
+    },
+    "domainNamePrefix": {
+      "type": "string",
+      "metadata": {
+        "description": "Prefix for domain name to access Grafana which is in the format: {prefix}.{location}.cloudapp.azure.com"
+      }
+    },
+    "storageAccountName": {
+      "type": "string",
+      "maxLength": 24
+    },
+    "storageAccountType": {
+      "type": "string",
+      "defaultValue": "Standard_LRS"
+    },
+    "storageAccountNewOrExisting": {
+      "type": "string",
+      "allowedValues": [
+        "new",
+        "existing"
+      ],
+      "metadata": {
+        "description": "Name of resource group of existing Storage Group (if applicable)"
+      },
+      "defaultValue": "new"
+    },
+    "storageAccountExistingRGName": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().name]"
+    },
+    "vmSize": {
+      "type": "string",
+      "defaultValue": "Standard_A2",
+      "metadata": {
+        "description": "size of the vm to use for the grafana instance"
+      }
+    },
+    "virtualNetworkName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the virtual network that the consumer wants to use"
+      }
+    },
+    "virtualNetworkNewOrExisting": {
+      "type": "string",
+      "defaultValue": "new",
+      "allowedValues": [
+        "new",
+        "existing"
+      ],
+      "metadata": {
+        "description": "Identifies whether to use new or existing Virtual Network"
+      }
+    },
+    "virtualNetworkExistingRGName": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().name]",
+      "metadata": {
+        "description": "Name of resource group of existing Virtual Network (if applicable)"
+      }
+    },
+    "virtualNetworkAddressPrefix": {
+      "type": "string",
+      "defaultValue": "10.0.0.0/16",
+      "metadata": {
+        "description": "Virtual network address"
+      }
+    },
+    "subnetName": {
+      "type": "string",
+      "defaultValue": "grafanaSubnet",
+      "metadata": {
+        "description": "Subnet for grafana"
+      }
+    },
+    "subnetPrefix": {
+      "type": "string",
+      "defaultValue": "10.0.0.0/24",
+      "metadata": {
+        "description": "Grafana subnet CIDR"
+      }
+    },
+    "_artifactsLocation": {
+      "type": "string",
+      "metadata": {
+        "description": "Base URL for Marketplace"
+      },
+      "defaultValue": "[deployment().properties.templateLink.uri]"
+    },
+    "_artifactsLocationSasToken": {
+      "type": "securestring",
+      "metadata": {
+        "description": "The sasToken required to access _artifactsLocation"
+      },
+      "defaultValue": ""
+    }
+  },
+  "variables": {
+    "installScripts": [
+      "[uri(parameters('_artifactsLocation'), concat('scripts/install-grafana.sh', parameters('_artifactsLocationSasToken')))]"
     ],
-    "outputs": {}
+    "installOpts": "[concat('-A ', parameters('grafanaAdminPassword'))]",
+    "nicName": "[concat(parameters('namespace'), '-nic')]",
+    "publicIPAddressType": "Dynamic",
+    "vmStorageAccountContainerName": "vhds",
+    "publicIPAddressId": "[resourceId(parameters('publicIPAddressExistingRGName'), 'Microsoft.Network/publicIPAddresses', parameters('publicIPAddressName'))]",
+    "vnetId": "[resourceId(parameters('virtualNetworkExistingRGName'), 'Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]",
+    "storageAccountID": "[resourceId(parameters('storageAccountExistingRGName'), 'Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]",
+    "subnetRef": "[concat(variables('vnetId'),'/subnets/',parameters('subnetName'))]",
+    "passwordAuth": {
+      "computerName": "[concat(parameters('namespace'), '-vm')]",
+      "adminUsername": "[parameters('sshUsername')]",
+      "adminPassword": "[parameters('sshPassword')]"
+    },
+    "sshAuth": {
+      "computerName": "[concat(parameters('namespace'), '-vm')]",
+      "adminUsername": "[parameters('sshUsername')]",
+      "linuxConfiguration": {
+        "disablePasswordAuthentication": true,
+        "ssh": {
+          "publicKeys": [
+            {
+              "path": "[concat('/home/', parameters('sshUsername'), '/.ssh/authorized_keys')]",
+              "keyData": "[parameters('sshPublicKey')]"
+            }
+          ]
+        }
+      }
+    },
+    "OSDiskName": "concat(parameters('namespace'), '-disk')",
+    "securityGroupName": "[concat(parameters('namespace'), '-nsg')]"
+  },
+  "resources": [
+    {
+      "apiVersion": "2017-05-10",
+      "name": "pid-947d6d2b-7126-49f4-91af-eab5ea804f2b",
+      "type": "Microsoft.Resources/deployments",
+      "properties": {
+        "mode": "Incremental",
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "resources": []
+        }
+      }
+    },
+    {
+      "condition": "[equals(parameters('virtualNetworkNewOrExisting'), 'new')]",
+      "name": "[parameters('virtualNetworkName')]",
+      "apiVersion": "2017-06-01",
+      "type": "Microsoft.Network/virtualNetworks",
+      "location": "[parameters('location')]",
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "[parameters('virtualNetworkAddressPrefix')]"
+          ]
+        },
+        "subnets": [
+          {
+            "name": "[parameters('subnetName')]",
+            "properties": {
+              "addressPrefix": "[parameters('subnetPrefix')]"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "condition": "[equals(parameters('storageAccountNewOrExisting'), 'new')]",
+      "type": "Microsoft.Storage/storageAccounts",
+      "name": "[parameters('storageAccountName')]",
+      "apiVersion": "2016-01-01",
+      "location": "[parameters('location')]",
+      "sku": {
+        "name": "[parameters('storageAccountType')]"
+      },
+      "kind": "Storage",
+      "properties": {}
+    },
+    {
+      "condition": "[equals(parameters('publicIPAddressNewOrExisting'), 'new')]",
+      "apiVersion": "2017-06-01",
+      "type": "Microsoft.Network/publicIPAddresses",
+      "name": "[parameters('publicIPAddressName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "publicIPAllocationMethod": "[variables('publicIPAddressType')]",
+        "dnsSettings": {
+          "domainNameLabel": "[parameters('domainNamePrefix')]"
+        }
+      }
+    },
+    {
+      "apiVersion": "2017-06-01",
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "name": "[variables('securityGroupName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "securityRules": [
+          {
+            "name": "SSH",
+            "properties": {
+              "description": "Allows inbound SSH traffic",
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRange": "22",
+              "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 100,
+              "direction": "Inbound"
+            }
+          },
+          {
+            "name": "Grafana",
+            "properties": {
+              "description": "Allows inbound grafana HTTP traffic",
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRange": "3000",
+              "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 200,
+              "direction": "Inbound"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "2017-06-01",
+      "type": "Microsoft.Network/networkInterfaces",
+      "name": "[variables('nicName')]",
+      "location": "[parameters('location')]",
+      "dependsOn": [
+        "[concat('Microsoft.Network/publicIPAddresses/', parameters('publicIPAddressName'))]",
+        "[concat('Microsoft.Network/virtualNetworks/', parameters('virtualNetworkName'))]"
+      ],
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "[concat(parameters('namespace'), '-ip-config')]",
+            "properties": {
+              "privateIPAllocationMethod": "[variables('publicIPAddressType')]",
+              "publicIPAddress": {
+                "id": "[variables('publicIPAddressId')]"
+              },
+              "subnet": {
+                "id": "[variables('subnetRef')]"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "[parameters('namespace')]",
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2017-03-30",
+      "location": "[parameters('location')]",
+      "dependsOn": [
+        "[concat('Microsoft.Network/networkInterfaces/', variables('nicName'))]",
+        "[concat('Microsoft.Storage/storageAccounts/', parameters('storageAccountName'))]"
+      ],
+      "properties": {
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "Canonical",
+            "offer": "UbuntuServer",
+            "sku": "16.04-LTS",
+            "version": "latest"
+          },
+          "osDisk": {
+            "createOption": "FromImage",
+            "name": "osdisk",
+            "vhd": {
+              "uri": "[concat(reference(variables('storageAccountID')).primaryEndpoints.blob, variables('vmStorageAccountContainerName'), '/',variables('OSDiskName'),'.vhd')]"
+            }
+          }
+        },
+        "hardwareProfile": {
+          "vmSize": "[parameters('vmSize')]"
+        },
+        "osProfile": "[if(equals(parameters('authenticationType'), 'password'), variables('passwordAuth'), variables('sshAuth'))]",
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces',variables('nicName'))]"
+            }
+          ]
+        }
+      },
+      "resources": [
+        {
+          "type": "extensions",
+          "name": "installGrafana",
+          "apiVersion": "2017-03-30",
+          "location": "[parameters('location')]",
+          "dependsOn": [
+            "[concat('Microsoft.Compute/virtualMachines/', parameters('namespace'))]"
+          ],
+          "properties": {
+            "publisher": "Microsoft.Azure.Extensions",
+            "type": "CustomScript",
+            "typeHandlerVersion": "2.0",
+            "autoUpgradeMinorVersion": true,
+            "settings": {
+              "fileUris": "[variables('installScripts')]"
+            },
+            "protectedSettings": {
+              "commandToExecute": "[concat('bash install-grafana.sh ', variables('installOpts'))]"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "outputs": {}
 }
