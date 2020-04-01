@@ -4,9 +4,22 @@
 
 ### API Reference
 
-You can read the Azure Resource Manager 
-[reference](https://docs.microsoft.com/en-us/azure/templates/) in order to see
-the latest API for the "resources" section of mainTemplate.json.
+Read the main Azure Resource Manager (AKA ARM) template
+[reference](https://docs.microsoft.com/en-us/azure/azure-resource-manager/templates/template-syntax)
+in order to understand how to write mainTemplate.json (an ARM template). To 
+understand how to declare resources in your template, see the resource 
+[reference](https://docs.microsoft.com/en-us/azure/templates/). 
+
+### Validation
+
+In order to validate mainTemplate.json, you can use the 
+[Azure CLI](https://docs.microsoft.com/en-us/cli/azure/?view=azure-cli-latest)
+command `az` as follows:
+
+```bash
+az login
+az deployment group validate -g azuremarketplacegrafana -f mainTemplate.json
+```
 
 ## Roadmap
 
