@@ -18,7 +18,10 @@ command `az` as follows:
 
 ```bash
 az login
-az deployment group validate -g azuremarketplacegrafana -f mainTemplate.json
+# We must set the _artifactsLocation parameter since for some reason the 
+# default won't work when validating
+az deployment group validate -g azuremarketplacegrafana -f mainTemplate.json \
+  -p _artifactsLocation=https://github.com/grafana/azure-marketplace/tree/master
 ```
 
 ## Roadmap
