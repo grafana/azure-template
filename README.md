@@ -2,6 +2,9 @@
 
 ## Development
 
+For an introduction to create Azure Marketplace offers, you should read 
+[this article](https://docs.microsoft.com/en-us/azure/marketplace/partner-center-portal/create-new-azure-apps-offer).
+
 ### API Reference
 
 Read the main Azure Resource Manager (AKA ARM) template
