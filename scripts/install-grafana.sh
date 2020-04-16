@@ -53,7 +53,7 @@ done
 install_grafana()
 {
     log "Downloading grafana with version ${GRAFANA_VERSION}"
-    local DOWNLOAD_URL="https://s3-us-west-2.amazonaws.com/grafana-releases/release/grafana_${GRAFANA_VERSION}_amd64.deb"
+    local DOWNLOAD_URL="https://dl.grafana.com/oss/release/grafana_${GRAFANA_VERSION}_amd64.deb"
     sudo apt-get install -y adduser libfontconfig
     wget "${DOWNLOAD_URL}"
     sudo dpkg -i "grafana_${GRAFANA_VERSION}_amd64.deb"
