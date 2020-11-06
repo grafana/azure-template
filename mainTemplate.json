@@ -193,7 +193,6 @@
     "publicIPAddressId": "[resourceId(parameters('publicIPAddressExistingRGName'), 'Microsoft.Network/publicIPAddresses', parameters('publicIPAddressName'))]",
     "vnetId": "[resourceId(parameters('virtualNetworkExistingRGName'), 'Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]",
     "storageAccountID": "[resourceId(parameters('storageAccountExistingRGName'), 'Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]",
-    "subnetRef": "[concat(variables('vnetId'), '/subnets/', parameters('subnetName'))]",
     "passwordAuth": {
       "computerName": "[concat(parameters('namespace'), '-vm')]",
       "adminUsername": "[parameters('sshUsername')]",
@@ -335,7 +334,7 @@
                 "id": "[variables('publicIPAddressId')]"
               },
               "subnet": {
-                "id": "[variables('subnetRef')]"
+                "id": "[concat(variables('vnetId'), '/subnets/', parameters('subnetName'))]"
               }
             }
           }

@@ -83,7 +83,7 @@ The `az deployment group create` command has two parameters, `--debug` and `--ve
 5. Click `Save draft`.
 6. Click `Review and publish`.
 7. Click `Publish`.
-8. Wait a few minutes for the Preview creation to complete then navigate to: https://partner.microsoft.com/en-us/dashboard/commercial-marketplace/offers/b88530aa-30f9-40ea-b09f-14f59acd3a73/overview and click `Go live`.
+8. Wait a few minutes (up to an hour) for the Preview creation to complete then navigate to: https://partner.microsoft.com/en-us/dashboard/commercial-marketplace/offers/b88530aa-30f9-40ea-b09f-14f59acd3a73/overview and click `Go live`.
 
 ## Roadmap
 
