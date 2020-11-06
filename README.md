@@ -27,43 +27,48 @@ command `az` as follows:
 
 1. Validate the template
 
-   Create a resource group. Replace `yourtestname` with a unique string that is less than 25 characters long.
+   Create a resource group.
 
    ```bash
    az login
 
-   az group create --name yourtestname --location "westcentralus"
+   az group create --name mktplacetest --location "westcentralus"
 
    # We must set the _artifactsLocation parameter since for some reason the
    # default won't work when validating
-   az deployment group validate -g yourtestname -f mainTemplate.json \
+   az deployment group validate -g mktplacetest -f mainTemplate.json \
    -p _artifactsLocation=https://github.com/grafana/azure-template/tree/master/
    ```
 
-2. Test the install script
-   Test the install script by deploying the template to Azure with this command. The `_artifactsLocation` parameter has to have a trailing slash. Use the same name (`yourtestname`) that you used for the group
+1. Push your branch to GitHub.
+1. Test the install script
+   Deploy the template to Azure with the command below.
+
+   - Change `yourbranch` to the name of the branch that you pushed to GitHub in the previous step.
+   - The `_artifactsLocation` parameter has to have a trailing slash.
+   - Use the same name (`mktplacetest`) that you used for the group create command.
 
    ```bash
-   az deployment group create -g yourtestname -f mainTemplate.json -p _artifactsLocation=https://raw.githubusercontent.com/grafana/azure-template/yourbranch/ -p sshPassword=a_Passw0rd
+   az deployment group create -g mktplacetest -f mainTemplate.json -p _artifactsLocation=https://raw.githubusercontent.com/grafana/azure-template/yourbranch/ -p sshPassword=a_Passw0rd
    ```
 
    A list of parameters needs to be filled in:
 
-   - `sshUsername` is the username for ssh-ing into the VM that is created. E.g. `ssh daniel@yourtestname.westcentralus.cloudapp.azure.com`.
-   - `grafanaAdminPassword` is the initial admin password for Grafana at `http://yourtestname.westcentralus.cloudapp.azure.com:3000`.
+   - `sshUsername` is the username for ssh-ing into the VM that is created. E.g. `ssh daniel@mktplacetest.westcentralus.cloudapp.azure.com`.
+   - `grafanaAdminPassword` is the initial admin password for Grafana at `http://mktplacetest.westcentralus.cloudapp.azure.com:3000`.
 
-   For the rest of the parameters, enter the same name as the resource group that you created previously with the `az group create` command e.g. `yourtestname`.
+   For the rest of the parameters, enter the same name as the resource group that you created previously with the `az group create` command e.g. `mktplacetest`.
 
    - `publicIPAddressName` - the deployment will create a public IP address.
    - `domainNamePrefix` - used for the first part of the url when the deployment creates a DNS name.
    - `storageAccountName`- the deployment will create a [storage account](https://portal.azure.com/#blade/HubsExtension/BrowseResource/resourceType/Microsoft.Storage%2FStorageAccounts).
    - `virtualNetworkName` - the deployment will create a virtual network.
 
-3. Log into the Grafana instance: https://yourtestname.westcentralus.cloudapp.azure.com:3000 with user `admin` and the `grafanaAdminPassword` from the previous step.
-4. Cleanup
+1. Log into the Grafana instance: http://mktplacetest.westcentralus.cloudapp.azure.com:3000 with user `admin` and the `grafanaAdminPassword` from the previous step.
+1. Cleanup
 
    ```bash
-   az group delete --name
+   az group delete --name mktplacetest
    ```
 
 #### Troubleshooting

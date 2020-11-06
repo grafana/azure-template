@@ -334,7 +334,7 @@
                 "id": "[variables('publicIPAddressId')]"
               },
               "subnet": {
-                "id": "[concat(variables('vnetId'), '/subnets/', parameters('subnetName'))]"
+                "id": "[resourceId(parameters('virtualNetworkExistingRGName'), 'Microsoft.Network/virtualNetworks/subnets/', parameters('virtualNetworkName'), parameters('subnetName'))]"
               }
             }
           }
