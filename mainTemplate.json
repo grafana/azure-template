@@ -191,7 +191,6 @@
     "publicIPAddressType": "Dynamic",
     "vmStorageAccountContainerName": "vhds",
     "publicIPAddressId": "[resourceId(parameters('publicIPAddressExistingRGName'), 'Microsoft.Network/publicIPAddresses', parameters('publicIPAddressName'))]",
-    "vnetId": "[resourceId(parameters('virtualNetworkExistingRGName'), 'Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]",
     "storageAccountID": "[resourceId(parameters('storageAccountExistingRGName'), 'Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]",
     "passwordAuth": {
       "computerName": "[concat(parameters('namespace'), '-vm')]",
