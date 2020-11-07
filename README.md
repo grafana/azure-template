@@ -89,6 +89,7 @@ The `az deployment group create` command has two parameters, `--debug` and `--ve
 6. Click `Review and publish`.
 7. Click `Publish`.
 8. Wait a few minutes (up to an hour) for the Preview creation to complete then navigate to: https://partner.microsoft.com/en-us/dashboard/commercial-marketplace/offers/b88530aa-30f9-40ea-b09f-14f59acd3a73/overview and click `Go live`.
+9. Check the automatic PR created: https://solutiontemplates.visualstudio.com/marketplacesolutions/_git/grafana-labs/pullrequests?_a=mine to see if it passes the linting in the build.
 
 ## Roadmap
 
