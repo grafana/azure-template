@@ -19,6 +19,12 @@ understand how to declare resources in your template, see the resource
 1. Validate the offer
 1. Upload to the Azure Marketplace Partner Portal and publish
 
+### Update the version number
+
+1. Update the `GRAFANA_VERSION` command line option to the latest version of Grafana in the `scripts/install-grafana.sh` file.
+1. Update the `githubUsername` and `dateUpdated` fields in the `metadata.json` field.
+1. Commit the change to Git.
+
 ### Validate the offer
 
 In order to validate mainTemplate.json, you can use the
@@ -39,6 +45,8 @@ command `az` as follows:
    az deployment group validate -g mktplacetest -f mainTemplate.json \
    -p _artifactsLocation=https://github.com/grafana/azure-template/tree/master/
    ```
+
+   It will ask for parameters. See below for the values that should be filled in.
 
 1. Push your branch to GitHub.
 1. Test the install script
