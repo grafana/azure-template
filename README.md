@@ -15,6 +15,8 @@ understand how to declare resources in your template, see the resource
 
 ## Publishing the marketplace offering
 
+High level steps:
+
 1. Update the version number
 1. Validate the offer
 1. Upload to the Azure Marketplace Partner Portal and publish
