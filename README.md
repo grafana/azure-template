@@ -48,7 +48,7 @@ command `az` as follows:
    -p _artifactsLocation=https://github.com/grafana/azure-template/tree/master/
    ```
 
-   It will ask for parameters. See below for the values that should be filled in.
+   It will ask for parameters. See the parameter section below for the values that should be filled in.
 
 1. Push your branch to GitHub.
 1. Test the install script
@@ -94,7 +94,7 @@ The `az deployment group create` command has two parameters, `--debug` and `--ve
 1. Get access to the Grafana Azure portal and then ask Daniel Lee or Dan Cech for access to the Azure Marketplace Partner Portal.
 2. Build the zip file to upload by running `./build.sh`
 3. Navigate to the technical configuration section of the Grafana plan: https://partner.microsoft.com/en-us/dashboard/commercial-marketplace/offers/b88530aa-30f9-40ea-b09f-14f59acd3a73/plans/2118022800000041745/technicalconfiguration
-4. Update the version number to the Grafana version. Upload the `./build/grafana-azure.zip`.
+4. Update the version number to the Grafana version. Remove the zip file and upload the new `./build/grafana-azure.zip`.
 5. Click `Save draft`.
 6. Click `Review and publish`.
 7. Click `Publish`.
