@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Command Line Opts
-GRAFANA_VERSION="7.3.7"
+GRAFANA_VERSION="8.1.1"
 GRAFANA_PORT="3000"
 
 # Utility Log Command
