@@ -1,5 +1,7 @@
 # Grafana Azure Marketplace Offer
 
+This is the template and scripts for producing the [OSS Azure Marketplace Offer for Grafana](https://azuremarketplace.microsoft.com/en-gb/marketplace/apps/grafana-labs.grafana_oss?tab=Overview).
+
 ## Development
 
 For an introduction to create Azure Marketplace offers, you should read
@@ -21,13 +23,13 @@ High level steps:
 1. Validate the offer
 1. Upload to the Azure Marketplace Partner Portal and publish
 
-### Update the version number
+### 1. Update the version number
 
 1. Update the `GRAFANA_VERSION` command line option to the latest version of Grafana in the `scripts/install-grafana.sh` file.
 1. Update the `githubUsername` and `dateUpdated` fields in the `metadata.json` field.
 1. Commit the change to Git.
 
-### Validate the offer
+### 2. Validate the offer
 
 In order to validate mainTemplate.json, you can use the
 [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/?view=azure-cli-latest)
@@ -89,7 +91,7 @@ The VM extension for the script can be found in the portal under extensions ([he
 
 The `az deployment group create` command has two parameters, `--debug` and `--verbose` that return more detailed information about the deployment.
 
-### Upload to the Azure Marketplace Partner Portal and publish
+### 3. Upload to the Azure Marketplace Partner Portal and publish
 
 1. Get access to the Grafana Azure portal and then ask Daniel Lee or Dan Cech for access to the Azure Marketplace Partner Portal.
 2. Build the zip file to upload by running `./build.sh`
